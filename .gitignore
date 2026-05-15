@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+miniprogram_npm/
+
+# Build output
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local editor and system files
+.DS_Store
+.idea/
+.vscode/
+
+# WeChat DevTools local preferences
+project.private.config.json
+
+# Local secrets
+.env
+.env.*
+*.pem
+*.key

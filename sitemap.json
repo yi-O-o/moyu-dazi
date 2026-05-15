@@ -1,0 +1,9 @@
+{
+  "desc": "AI tools mini program sitemap",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

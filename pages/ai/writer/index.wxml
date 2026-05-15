@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="panel">
+    <text class="eyebrow">Copy Studio</text>
+    <text class="form-title">生成一段可直接修改的文案</text>
+    <input class="input" placeholder="主题，例如：新店开业活动" value="{{topic}}" bindinput="onTopicInput" />
+    <picker mode="selector" range="{{tones}}" value="{{toneIndex}}" bindchange="onToneChange">
+      <view class="picker">
+        <text>语气</text>
+        <text>{{tones[toneIndex]}} ›</text>
+      </view>
+    </picker>
+    <button class="primary-button" loading="{{loading}}" bindtap="createCopy">生成文案</button>
+  </view>
+
+  <view class="section-head">
+    <text class="section-title">结果</text>
+    <text class="result-meta">{{result ? "已生成" : "等待输入"}}</text>
+  </view>
+  <view class="result-box">
+    <text>{{result || "生成后的内容会显示在这里。"}}</text>
+  </view>
+</view>

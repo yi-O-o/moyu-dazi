@@ -1,0 +1,89 @@
+page {
+  min-height: 100%;
+  background: #fff8ef;
+  color: #2d2520;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28rpx 28rpx 56rpx;
+  background: linear-gradient(180deg, #fff4e8 0%, #fffaf3 44%, #f7fbf3 100%);
+}
+
+.section-title {
+  margin: 38rpx 0 18rpx;
+  font-size: 34rpx;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: #2d2520;
+}
+
+.muted {
+  color: #8a7467;
+}
+
+.primary-button {
+  height: 92rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(135deg, #d97745 0%, #c16b3b 48%, #6f9f72 100%);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16rpx 34rpx rgba(193, 107, 59, 0.18);
+}
+
+.primary-button::after,
+.ghost-button::after,
+.send-button::after {
+  border: 0;
+}
+
+.ghost-button {
+  height: 80rpx;
+  border-radius: 8rpx;
+  border: 2rpx solid #ead9c9;
+  color: #5f4b3f;
+  background: #ffffff;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2rpx solid #ead9c9;
+  background: rgba(255, 253, 249, 0.94);
+  border-radius: 8rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+  color: #2d2520;
+  box-shadow: inset 0 2rpx 4rpx rgba(16, 24, 40, 0.03);
+}
+
+.textarea {
+  min-height: 220rpx;
+}
+
+.panel {
+  background: rgba(255, 253, 249, 0.96);
+  border: 2rpx solid rgba(234, 217, 201, 0.82);
+  border-radius: 8rpx;
+  padding: 30rpx;
+  box-shadow: 0 18rpx 42rpx rgba(118, 82, 55, 0.08);
+}
+
+.eyebrow {
+  display: block;
+  font-size: 23rpx;
+  font-weight: 700;
+  color: #b65f2a;
+  margin-bottom: 12rpx;
+}
