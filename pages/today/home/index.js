@@ -3,10 +3,13 @@ const {
   addPoints,
   addWish,
   buildGameSummary,
+  getDailyMysticSign,
   loadGameState,
-  removeWish
+  removeWish,
+  saveDailyMysticSign
 } = require("../../../utils/gamification");
 const { createPost } = require("../../../utils/fishpond");
+const { createMeetup } = require("../../../utils/meetups");
 
 const MYSTIC_SIGNS = [
   {
@@ -42,6 +45,31 @@ const MYSTIC_SIGNS = [
 function getMysticSign() {
   const index = Math.floor(Math.random() * MYSTIC_SIGNS.length);
   return MYSTIC_SIGNS[index];
+}
+
+function buildPetMessage(summary) {
+  if (summary.todayMystic) {
+    return `${summary.todayMystic.level}：${summary.todayMystic.title}`;
+  }
+
+  if (summary.wishes && summary.wishes.length) {
+    return `今晚想${summary.wishes[0].text}，我帮你记着。`;
+  }
+
+  if (summary.todayPoints > 0) {
+    return `今天已经攒了 ${summary.todayPoints} 分，蛮会过日子的。`;
+  }
+
+  return "我在首页陪你。";
+}
+
+function guessMeetupType(text) {
+  if (/球|跑|运动|健身|羽毛球|篮球|网球/.test(text)) return "sport";
+  if (/麻|牌|桌游/.test(text)) return "mahjong";
+  if (/走|散步|逛|公园/.test(text)) return "walk";
+  if (/电影|看剧|影院/.test(text)) return "movie";
+
+  return "food";
 }
 
 Page({
@@ -137,7 +165,9 @@ Page({
     const summary = buildGameSummary(loadGameState());
 
     this.setData({
-      game: summary
+      game: summary,
+      mysticResult: summary.todayMystic,
+      petMessage: buildPetMessage(summary)
     });
   },
 
@@ -236,15 +266,26 @@ Page({
 
   deleteWish(event) {
     const id = event.currentTarget.dataset.id;
-    const summary = removeWish(id);
 
-    this.setData({
-      game: summary
-    });
-    wx.showToast({
-      title: "愿望已删除",
-      icon: "none",
-      duration: 1000
+    wx.showModal({
+      title: "删除这个愿望？",
+      content: "删掉后不会影响已经获得的积分。",
+      confirmText: "删除",
+      confirmColor: "#b65f2a",
+      success: (res) => {
+        if (!res.confirm) return;
+
+        const summary = removeWish(id);
+        this.setData({
+          game: summary,
+          petMessage: buildPetMessage(summary)
+        });
+        wx.showToast({
+          title: "愿望已删除",
+          icon: "none",
+          duration: 1000
+        });
+      }
     });
   },
 
@@ -269,9 +310,43 @@ Page({
     });
   },
 
+  turnWishToMeetup(event) {
+    const text = event.currentTarget.dataset.text;
+    if (!text) return;
+
+    createMeetup({
+      type: guessMeetupType(text),
+      title: "今晚想" + text,
+      time: "下班后",
+      location: "公司附近",
+      size: 2,
+      desc: "从下班许愿池一键转来的约局，细节可以在评论里慢慢定。"
+    });
+    const result = addPoints("meetup_publish", 3, { dailyLimit: 3 });
+
+    this.refreshGame();
+    wx.showToast({
+      title: result.added > 0 ? "已转成约局 +3" : "已转成约局",
+      icon: "none",
+      duration: 1200
+    });
+    setTimeout(() => {
+      wx.switchTab({
+        url: "/pages/offwork/home/index"
+      });
+    }, 450);
+  },
+
   drawMysticSign() {
-    const sign = getMysticSign();
-    const result = addPoints("mystic_sign", 1, { dailyLimit: 1 });
+    const savedSign = getDailyMysticSign();
+    const sign = savedSign || getMysticSign();
+    const result = savedSign
+      ? { added: 0, limited: true }
+      : addPoints("mystic_sign", 1, { dailyLimit: 1 });
+
+    if (!savedSign) {
+      saveDailyMysticSign(sign);
+    }
 
     this.setData({
       mysticResult: sign,
@@ -279,7 +354,15 @@ Page({
       petActionClass: "play"
     });
     this.refreshGame();
-    this.showPointToast(result, "玄学一下");
+    if (savedSign) {
+      wx.showToast({
+        title: "今天就是这支签",
+        icon: "none",
+        duration: 1200
+      });
+    } else {
+      this.showPointToast(result, "玄学一下");
+    }
 
     if (this.petTimer) clearTimeout(this.petTimer);
     this.petTimer = setTimeout(() => {

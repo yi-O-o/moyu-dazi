@@ -64,6 +64,23 @@
           {{item.joinText}}
         </view>
       </view>
+      <view class="meetup-comments">
+        <view class="comment-head">
+          <text>讨论 {{item.commentCount}}</text>
+          <text>评论 +1</text>
+        </view>
+        <view class="comment-list" wx:if="{{item.commentCount}}">
+          <view class="comment-item" wx:for="{{item.previewComments}}" wx:key="id">
+            <text class="comment-author">{{item.author}}</text>
+            <text class="comment-text">{{item.text}}</text>
+          </view>
+        </view>
+        <view class="comment-empty" wx:else>还没人问细节，来开个头。</view>
+        <view class="comment-row">
+          <input class="comment-input" maxlength="60" placeholder="问问时间、地点、AA 或新手友不友好" value="{{item.commentDraft}}" bindinput="handleCommentInput" data-id="{{item.id}}" />
+          <view class="comment-button" bindtap="submitComment" data-id="{{item.id}}">发送</view>
+        </view>
+      </view>
     </view>
   </view>
 

@@ -1,6 +1,7 @@
 const { addPoints } = require("../../../utils/gamification");
 const {
   TYPES,
+  addMeetupComment,
   createMeetup,
   decorateType,
   joinMeetup: joinMeetupById,
@@ -25,6 +26,7 @@ Page({
     emptyVisible: false,
     publishOpen: false,
     publishButtonText: "发约局",
+    commentInputs: {},
     form: {
       type: "food",
       title: "",
@@ -40,7 +42,11 @@ Page({
   },
 
   refreshMeetups() {
-    const meetups = listMeetups(this.data.activeType);
+    const meetups = listMeetups(this.data.activeType).map((meetup) => {
+      return Object.assign({}, meetup, {
+        commentDraft: this.data.commentInputs[meetup.id] || ""
+      });
+    });
 
     this.setData({
       types: decorateType(this.data.activeType),
@@ -109,6 +115,14 @@ Page({
     });
   },
 
+  handleCommentInput(event) {
+    const id = event.currentTarget.dataset.id;
+
+    this.setData({
+      [`commentInputs.${id}`]: event.detail.value
+    });
+  },
+
   publishMeetup() {
     const form = this.data.form;
 
@@ -165,6 +179,38 @@ Page({
       icon: "none",
       duration: 1200
     });
+  },
+
+  submitComment(event) {
+    const id = event.currentTarget.dataset.id;
+    const text = this.data.commentInputs[id] || "";
+    const result = addMeetupComment(id, text);
+
+    if (result.result === "empty") {
+      wx.showToast({
+        title: "先写一句评论",
+        icon: "none",
+        duration: 1000
+      });
+      return;
+    }
+
+    if (result.result !== "success") {
+      wx.showToast({
+        title: "这个局暂时找不到了",
+        icon: "none",
+        duration: 1000
+      });
+      return;
+    }
+
+    const pointResult = addPoints("meetup_comment", 1, { dailyLimit: 5 });
+
+    this.setData({
+      [`commentInputs.${id}`]: ""
+    });
+    this.refreshMeetups();
+    this.showPointToast(pointResult, "评论约局");
   },
 
   showPointToast(result, title) {

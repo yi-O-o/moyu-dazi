@@ -701,6 +701,29 @@
   margin-top: 18rpx;
 }
 
+.wish-empty {
+  margin-top: 18rpx;
+  padding: 22rpx;
+  border-radius: 8rpx;
+  background: #fff7ee;
+  border: 2rpx dashed rgba(182, 95, 42, 0.24);
+}
+
+.wish-empty-title {
+  display: block;
+  color: #7d4b30;
+  font-size: 26rpx;
+  font-weight: 800;
+}
+
+.wish-empty-desc {
+  display: block;
+  margin-top: 8rpx;
+  color: #8a7467;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
 .wish-chip {
   max-width: 100%;
   padding: 10rpx 16rpx;
@@ -728,13 +751,18 @@
   line-height: 1;
 }
 
-.wish-share {
+.wish-share,
+.wish-meetup {
   padding: 5rpx 10rpx;
   border-radius: 8rpx;
   background: rgba(255, 255, 255, 0.76);
   color: #b65f2a;
   font-size: 21rpx;
   font-weight: 800;
+}
+
+.wish-meetup {
+  color: #3f6f64;
 }
 
 .mystic-panel {

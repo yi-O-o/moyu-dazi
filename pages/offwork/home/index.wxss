@@ -404,6 +404,92 @@
   background: #dfe9bf;
 }
 
+.meetup-comments {
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.76);
+}
+
+.comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #8a7467;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.comment-item {
+  display: flex;
+  gap: 10rpx;
+  padding: 12rpx 14rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.58);
+  font-size: 23rpx;
+  line-height: 1.45;
+}
+
+.comment-author {
+  flex: 0 0 auto;
+  color: #7d4b30;
+  font-weight: 800;
+}
+
+.comment-text {
+  flex: 1;
+  min-width: 0;
+  color: #5f4b3f;
+}
+
+.comment-empty {
+  margin-top: 12rpx;
+  padding: 12rpx 14rpx;
+  border-radius: 8rpx;
+  color: #8a7467;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 23rpx;
+}
+
+.comment-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.comment-input {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  padding: 0 18rpx;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  color: #3a2a22;
+  background: rgba(255, 250, 244, 0.92);
+  border: 2rpx solid rgba(234, 217, 201, 0.84);
+  font-size: 24rpx;
+}
+
+.comment-button {
+  flex: 0 0 104rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fffaf4;
+  background: #3f6f64;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
 .song-preview {
   margin-top: 28rpx;
   padding: 30rpx;

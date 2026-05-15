@@ -95,8 +95,13 @@
       <view class="wish-chip" wx:for="{{game.wishes}}" wx:key="id">
         <text>{{item.text}}</text>
         <text class="wish-share" bindtap="shareWishToFish" data-text="{{item.text}}">发鱼塘</text>
+        <text class="wish-meetup" bindtap="turnWishToMeetup" data-text="{{item.text}}">转约局</text>
         <text class="wish-delete" bindtap="deleteWish" data-id="{{item.id}}">×</text>
       </view>
+    </view>
+    <view class="wish-empty" wx:else>
+      <text class="wish-empty-title">愿望池还空着</text>
+      <text class="wish-empty-desc">写一个很小的下班安排也可以，比如买杯奶茶、散步十分钟、早点回家。</text>
     </view>
   </view>
 
@@ -121,7 +126,7 @@
       <text class="mystic-line">{{mysticResult.lucky}}</text>
       <text class="mystic-line muted-line">{{mysticResult.avoid}}</text>
       <view class="mystic-action-row">
-        <view class="mystic-button secondary" bindtap="drawMysticSign">再抽一次</view>
+        <view class="mystic-button secondary" bindtap="drawMysticSign">今日签不换</view>
         <view class="mystic-button secondary" bindtap="shareMysticToFish">发鱼塘</view>
       </view>
     </view>

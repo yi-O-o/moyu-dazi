@@ -15,6 +15,7 @@ const DEFAULT_STATE = {
   points: 0,
   eventsByDay: {},
   completedTasksByDay: {},
+  mysticSignsByDay: {},
   wishes: [],
   personalityResult: null
 };
@@ -34,6 +35,7 @@ function loadGameState() {
   return Object.assign({}, DEFAULT_STATE, saved, {
     eventsByDay: saved.eventsByDay || {},
     completedTasksByDay: saved.completedTasksByDay || {},
+    mysticSignsByDay: saved.mysticSignsByDay || {},
     wishes: saved.wishes || []
   });
 }
@@ -73,6 +75,7 @@ function buildGameSummary(state) {
     todayPoints,
     level: getPetLevel(state.points),
     wishes: state.wishes,
+    todayMystic: state.mysticSignsByDay[today] || null,
     personalityResult: state.personalityResult,
     completedTasks: state.completedTasksByDay[today] || {}
   };
@@ -157,6 +160,25 @@ function removeWish(id) {
   return buildGameSummary(state);
 }
 
+function saveDailyMysticSign(sign) {
+  const today = getTodayKey();
+  const state = loadGameState();
+
+  state.mysticSignsByDay[today] = Object.assign({}, sign, {
+    date: today
+  });
+  saveGameState(state);
+
+  return buildGameSummary(state);
+}
+
+function getDailyMysticSign() {
+  const today = getTodayKey();
+  const state = loadGameState();
+
+  return state.mysticSignsByDay[today] || null;
+}
+
 function savePersonalityResult(result) {
   const state = loadGameState();
   state.personalityResult = Object.assign({}, result, {
@@ -173,7 +195,9 @@ module.exports = {
   buildGameSummary,
   completeDailyTask,
   getPetLevel,
+  getDailyMysticSign,
   loadGameState,
   removeWish,
+  saveDailyMysticSign,
   savePersonalityResult
 };

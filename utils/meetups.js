@@ -21,7 +21,10 @@ const SEED_MEETUPS = [
     joinedByMe: false,
     author: "球场续命人",
     desc: "新手友好，AA 场地费，打完可以一起买水。",
-    createdAt: "刚刚"
+    createdAt: "刚刚",
+    comments: [
+      { id: 1, author: "下班回血中", text: "新手能去吗？", createdAt: "刚刚" }
+    ]
   },
   {
     id: 2002,
@@ -34,7 +37,10 @@ const SEED_MEETUPS = [
     joinedByMe: false,
     author: "碳水快乐",
     desc: "不聊工作，只负责吃饱。",
-    createdAt: "12 分钟前"
+    createdAt: "12 分钟前",
+    comments: [
+      { id: 1, author: "准点关电脑", text: "这个我可以，想吃辣锅。", createdAt: "5 分钟前" }
+    ]
   },
   {
     id: 2003,
@@ -47,7 +53,8 @@ const SEED_MEETUPS = [
     joinedByMe: false,
     author: "三缺一观察员",
     desc: "轻松局，主打聊天和回血。",
-    createdAt: "半小时前"
+    createdAt: "半小时前",
+    comments: []
   }
 ];
 
@@ -73,6 +80,8 @@ function decorateMeetup(meetup) {
     statusText: remain > 0 ? `还缺 ${remain} 人` : "已满员",
     joinText: meetup.joinedByMe ? "已报名" : remain > 0 ? "我想去" : "满员了",
     joinButtonClass: meetup.joinedByMe ? "join-button joined" : "join-button",
+    commentCount: (meetup.comments || []).length,
+    previewComments: (meetup.comments || []).slice(0, 2),
     cardClass: `meetup-card ${meetup.type}`
   });
 }
@@ -116,7 +125,8 @@ function createMeetup(input) {
     joinedByMe: true,
     author: "我",
     desc: String(input.desc || "").trim().slice(0, 120),
-    createdAt: "刚刚"
+    createdAt: "刚刚",
+    comments: []
   };
 
   state.meetups = [meetup].concat(state.meetups || []);
@@ -153,8 +163,38 @@ function joinMeetup(id) {
   return result;
 }
 
+function addMeetupComment(id, text) {
+  const content = String(text || "").trim().slice(0, 60);
+  if (!content) return { result: "empty" };
+
+  const state = loadMeetupState();
+  const targetId = Number(id);
+  let result = "missing";
+
+  state.meetups = (state.meetups || []).map((meetup) => {
+    if (Number(meetup.id) !== targetId) return meetup;
+
+    result = "success";
+    return Object.assign({}, meetup, {
+      comments: [
+        {
+          id: Date.now(),
+          author: "我",
+          text: content,
+          createdAt: "刚刚"
+        }
+      ].concat(meetup.comments || []).slice(0, 30)
+    });
+  });
+
+  saveMeetupState(state);
+
+  return { result };
+}
+
 module.exports = {
   TYPES,
+  addMeetupComment,
   createMeetup,
   decorateType,
   joinMeetup,
