@@ -1,5 +1,16 @@
 const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
 
+function buildPetMessage(summary) {
+  const unlocked = (summary.accessories || []).filter((item) => item.unlocked);
+  const latest = unlocked[unlocked.length - 1];
+
+  if (latest) {
+    return `我已经戴上「${latest.title}」了，继续攒分还能解锁更多。`;
+  }
+
+  return "我今天不住框里了，正在桌面上晃悠。";
+}
+
 Page({
   data: {
     actionClass: "idle",
@@ -31,8 +42,11 @@ Page({
   },
 
   refreshGame() {
+    const game = buildGameSummary(loadGameState());
+
     this.setData({
-      game: buildGameSummary(loadGameState())
+      game,
+      message: buildPetMessage(game)
     });
   },
 

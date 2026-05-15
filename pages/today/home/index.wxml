@@ -1,4 +1,9 @@
 <view class="page today-page">
+  <view class="point-feedback" wx:if="{{pointFeedback}}">
+    <text class="point-feedback-title">{{pointFeedback.title}}</text>
+    <text class="point-feedback-value">{{pointFeedback.value}}</text>
+  </view>
+
   <view
     class="home-pet {{petActionClass}} {{petDragClass}}"
     style="left: {{homePetPosition.x}}px; top: {{homePetPosition.y}}px;"

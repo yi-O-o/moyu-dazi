@@ -1,0 +1,62 @@
+<view class="page channel-page">
+  <view class="channel-hero">
+    <text class="eyebrow warm">鱼塘频道</text>
+    <text class="channel-title">{{channel.title}}</text>
+    <text class="channel-desc">{{channel.desc}}</text>
+    <view class="channel-stats">
+      <text>{{channel.postCount}} 条动态</text>
+      <text>{{channel.commentCount}} 条讨论</text>
+    </view>
+  </view>
+
+  <view class="template-panel">
+    <view class="panel-head">
+      <text class="panel-title">可以这样发</text>
+      <view class="publish-entry" bindtap="goFishHome">去发布</view>
+    </view>
+    <view class="prompt-row">
+      <text class="prompt-chip" wx:for="{{channel.prompts}}" wx:key="*this">{{item}}</text>
+    </view>
+    <text class="safe-tip">{{channel.safeTip}}</text>
+  </view>
+
+  <view class="tag-panel" wx:if="{{channel.hotTags.length}}">
+    <text class="panel-title">大家常用标签</text>
+    <view class="tag-row">
+      <text class="hot-tag" wx:for="{{channel.hotTags}}" wx:key="*this">#{{item}}</text>
+    </view>
+  </view>
+
+  <view class="section-head">
+    <text class="section-title">频道动态</text>
+    <text class="section-action">点开看详情</text>
+  </view>
+
+  <view class="post-list">
+    <view class="empty-channel" wx:if="{{!posts.length}}">
+      <text class="empty-title">这个频道还没人发</text>
+      <text class="empty-desc">你可以回到鱼塘发第一条，宠物会记得这口经验。</text>
+      <view class="empty-button" bindtap="goFishHome">去发一条</view>
+    </view>
+
+    <view class="post-card" wx:for="{{posts}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.id}}">
+      <view class="post-head">
+        <view class="avatar">{{item.avatar}}</view>
+        <view>
+          <text class="post-author">{{item.author}}</text>
+          <text class="post-meta">{{item.createdAt}} · {{item.mood}}</text>
+        </view>
+      </view>
+      <text class="post-title">{{item.title}}</text>
+      <text class="post-content">{{item.content}}</text>
+      <view class="tag-row" wx:if="{{item.tags.length}}">
+        <text class="post-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">#{{tag}}</text>
+      </view>
+      <view class="post-foot">
+        <text>赞 {{item.likeCount}}</text>
+        <text>评论 {{item.commentCount}}</text>
+        <text>收藏 {{item.favoriteCount}}</text>
+      </view>
+    </view>
+  </view>
+</view>

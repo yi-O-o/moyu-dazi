@@ -11,6 +11,16 @@ const LEVELS = [
   { level: 8, title: "宠物福利合伙人", min: 110 }
 ];
 
+const PET_ACCESSORIES = [
+  { id: "water", level: 2, title: "准点水杯徽章", desc: "提醒你别把自己熬干。" },
+  { id: "scarf", level: 3, title: "工位围巾", desc: "陪你坐稳今天的工位。" },
+  { id: "fish_hat", level: 4, title: "摸鱼小帽", desc: "合理休息也算回血。" },
+  { id: "wish_star", level: 5, title: "愿望星星", desc: "把下班的小事认真记住。" },
+  { id: "pond_badge", level: 6, title: "鱼塘活跃徽章", desc: "证明你不是一个人在熬班。" },
+  { id: "expert_medal", level: 7, title: "生存专家奖牌", desc: "今天也很会保护能量。" },
+  { id: "welfare_crown", level: 8, title: "福利池小王冠", desc: "解锁福利池参与资格。" }
+];
+
 const DEFAULT_STATE = {
   points: 0,
   eventsByDay: {},
@@ -63,6 +73,29 @@ function getPetLevel(points) {
   });
 }
 
+function getPetAccessories(level) {
+  return PET_ACCESSORIES.map((item) => {
+    const unlocked = level >= item.level;
+
+    return Object.assign({}, item, {
+      unlocked,
+      className: unlocked ? "reward-card unlocked" : "reward-card locked",
+      statusText: unlocked ? "已解锁" : `Lv.${item.level} 解锁`
+    });
+  });
+}
+
+function getPetLook(level) {
+  return {
+    hatVisible: level >= 4,
+    starVisible: level >= 5,
+    badgeVisible: level >= 6,
+    crownVisible: level >= 8,
+    scarfVisible: level >= 3,
+    medalVisible: level >= 7
+  };
+}
+
 function buildGameSummary(state) {
   const today = getTodayKey();
   const todayEvents = state.eventsByDay[today] || {};
@@ -70,10 +103,14 @@ function buildGameSummary(state) {
     return sum + todayEvents[key].points;
   }, 0);
 
+  const level = getPetLevel(state.points);
+
   return {
     points: state.points,
     todayPoints,
-    level: getPetLevel(state.points),
+    level,
+    accessories: getPetAccessories(level.level),
+    petLook: getPetLook(level.level),
     wishes: state.wishes,
     todayMystic: state.mysticSignsByDay[today] || null,
     personalityResult: state.personalityResult,
@@ -195,6 +232,7 @@ module.exports = {
   buildGameSummary,
   completeDailyTask,
   getPetLevel,
+  getPetAccessories,
   getDailyMysticSign,
   loadGameState,
   removeWish,

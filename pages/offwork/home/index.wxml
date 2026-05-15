@@ -1,4 +1,9 @@
 <view class="page offwork-page">
+  <view class="point-feedback" wx:if="{{pointFeedback}}">
+    <text class="point-feedback-title">{{pointFeedback.title}}</text>
+    <text class="point-feedback-value">{{pointFeedback.value}}</text>
+  </view>
+
   <view class="off-hero">
     <view>
       <text class="eyebrow warm-light">下班搭子</text>

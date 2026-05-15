@@ -1,4 +1,9 @@
 <view class="page fish-page">
+  <view class="point-feedback" wx:if="{{pointFeedback}}">
+    <text class="point-feedback-title">{{pointFeedback.title}}</text>
+    <text class="point-feedback-value">{{pointFeedback.value}}</text>
+  </view>
+
   <view class="fish-hero">
     <view>
       <text class="eyebrow light">摸鱼广场</text>
@@ -22,7 +27,26 @@
       </view>
     </view>
   </scroll-view>
-  <text class="channel-desc">{{activeChannelDesc}}</text>
+  <view class="channel-summary-row">
+    <text class="channel-desc">{{activeChannelDesc}}</text>
+    <view class="channel-detail-link" wx:if="{{activeChannelDetailVisible}}" bindtap="goChannelDetail">进频道</view>
+  </view>
+
+  <view class="channel-board">
+    <view class="section-head compact">
+      <text class="section-title compact-title">频道小馆</text>
+      <text class="section-action">先逛最容易发的</text>
+    </view>
+    <scroll-view class="channel-card-scroll" scroll-x="true" enable-flex="true">
+      <view class="channel-card-row">
+        <view class="channel-card" wx:for="{{channelCards}}" wx:key="id" bindtap="goChannelDetail" data-id="{{item.id}}">
+          <text class="channel-card-title">{{item.title}}</text>
+          <text class="channel-card-desc">{{item.desc}}</text>
+          <text class="channel-card-meta">{{item.postCount}} 条动态 · {{item.commentCount}} 条讨论</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
 
   <view class="publish-panel" wx:if="{{publishOpen}}">
     <text class="publish-title">发一条上班动态</text>

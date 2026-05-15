@@ -3,6 +3,7 @@ const {
   CHANNELS,
   addComment,
   createPost,
+  listChannelSummaries,
   listPosts,
   togglePostReaction
 } = require("../../../utils/fishpond");
@@ -35,8 +36,10 @@ Page({
   data: {
     channels: decorateChannels("all"),
     publishChannels: getPublishChannels("cup"),
+    channelCards: listChannelSummaries(),
     activeChannel: "all",
     activeChannelDesc: CHANNELS[0].desc,
+    activeChannelDetailVisible: false,
     posts: listPosts("all"),
     game: buildGameSummary(loadGameState()),
     publishOpen: false,
@@ -49,11 +52,16 @@ Page({
       images: []
     },
     commentPostId: null,
-    commentInput: ""
+    commentInput: "",
+    pointFeedback: null
   },
 
   onShow() {
     this.refreshPosts();
+  },
+
+  onUnload() {
+    if (this.pointTimer) clearTimeout(this.pointTimer);
   },
 
   refreshPosts() {
@@ -62,6 +70,8 @@ Page({
     this.setData({
       channels: decorateChannels(this.data.activeChannel),
       activeChannelDesc: channel.desc,
+      activeChannelDetailVisible: channel.id !== "all",
+      channelCards: listChannelSummaries(),
       posts: decorateVisiblePosts(listPosts(this.data.activeChannel), this.data.commentPostId),
       game: buildGameSummary(loadGameState())
     });
@@ -75,6 +85,15 @@ Page({
       publishOpen: false
     });
     this.refreshPosts();
+  },
+
+  goChannelDetail(event) {
+    const id = event.currentTarget.dataset.id || this.data.activeChannel;
+    if (!id || id === "all") return;
+
+    wx.navigateTo({
+      url: `/pages/fish/channel/index?id=${id}`
+    });
   },
 
   togglePublish() {
@@ -270,11 +289,29 @@ Page({
   },
 
   showPointToast(result, title) {
+    this.playPointFeedback(result, title);
     wx.showToast({
       title: result.added > 0 ? `${title} +${result.added}` : "今天已达加分上限",
       icon: "none",
       duration: 1200
     });
+  },
+
+  playPointFeedback(result, title) {
+    if (!result || result.added <= 0) return;
+
+    if (this.pointTimer) clearTimeout(this.pointTimer);
+    this.setData({
+      pointFeedback: {
+        title,
+        value: `+${result.added}`
+      }
+    });
+    this.pointTimer = setTimeout(() => {
+      this.setData({
+        pointFeedback: null
+      });
+    }, 1350);
   },
 
   noop() {

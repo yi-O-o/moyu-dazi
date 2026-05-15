@@ -94,7 +94,8 @@ Page({
     },
     game: buildGameSummary(loadGameState()),
     wishInput: "",
-    mysticResult: null
+    mysticResult: null,
+    pointFeedback: null
   },
 
   onLoad() {
@@ -123,6 +124,7 @@ Page({
     this.active = false;
     this.stopTicker();
     if (this.petTimer) clearTimeout(this.petTimer);
+    if (this.pointTimer) clearTimeout(this.pointTimer);
   },
 
   startTicker() {
@@ -303,6 +305,7 @@ Page({
     const result = addPoints("pond_publish", 2, { dailyLimit: 3 });
 
     this.refreshGame();
+    this.playPointFeedback(result, "发到鱼塘");
     wx.showToast({
       title: result.added > 0 ? "已发到鱼塘 +2" : "已发到鱼塘",
       icon: "none",
@@ -325,6 +328,7 @@ Page({
     const result = addPoints("meetup_publish", 3, { dailyLimit: 3 });
 
     this.refreshGame();
+    this.playPointFeedback(result, "转成约局");
     wx.showToast({
       title: result.added > 0 ? "已转成约局 +3" : "已转成约局",
       icon: "none",
@@ -393,6 +397,7 @@ Page({
     const result = addPoints("pond_publish", 2, { dailyLimit: 3 });
 
     this.refreshGame();
+    this.playPointFeedback(result, "发到鱼塘");
     wx.showToast({
       title: result.added > 0 ? "已发到鱼塘 +2" : "已发到鱼塘",
       icon: "none",
@@ -401,11 +406,29 @@ Page({
   },
 
   showPointToast(result, title) {
+    this.playPointFeedback(result, title);
     wx.showToast({
       title: result.added > 0 ? `${title} +${result.added}` : "今天已经记过啦",
       icon: "none",
       duration: 1300
     });
+  },
+
+  playPointFeedback(result, title) {
+    if (!result || result.added <= 0) return;
+
+    if (this.pointTimer) clearTimeout(this.pointTimer);
+    this.setData({
+      pointFeedback: {
+        title,
+        value: `+${result.added}`
+      }
+    });
+    this.pointTimer = setTimeout(() => {
+      this.setData({
+        pointFeedback: null
+      });
+    }, 1350);
   },
 
   startHomePetDrag(event) {

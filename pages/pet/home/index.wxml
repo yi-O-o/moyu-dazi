@@ -12,13 +12,19 @@
       bindtouchend="endPetDrag"
       bindtouchcancel="endPetDrag"
     >
+      <view class="pet-aura" wx:if="{{game.petLook.starVisible}}"></view>
       <view class="big-shadow"></view>
       <view class="pet-tail"></view>
       <view class="big-body">
         <view class="body-belly"></view>
+        <view class="pet-scarf" wx:if="{{game.petLook.scarfVisible}}"></view>
+        <view class="pet-medal" wx:if="{{game.petLook.medalVisible}}"></view>
+        <view class="pet-badge" wx:if="{{game.petLook.badgeVisible}}">鱼</view>
         <view class="pet-foot left"></view>
         <view class="pet-foot right"></view>
       </view>
+      <view class="pet-hat" wx:if="{{game.petLook.hatVisible}}"></view>
+      <view class="pet-crown" wx:if="{{game.petLook.crownVisible}}"></view>
       <view class="big-ear left">
         <view class="ear-inner"></view>
       </view>
@@ -55,6 +61,15 @@
   <view class="action-grid">
     <view class="action-card" wx:for="{{actions}}" wx:key="id" bindtap="playPet" data-text="{{item.text}}">
       <text>{{item.title}}</text>
+    </view>
+  </view>
+
+  <view class="section-title">等级装扮</view>
+  <view class="reward-grid">
+    <view class="{{item.className}}" wx:for="{{game.accessories}}" wx:key="id">
+      <text class="reward-title">{{item.title}}</text>
+      <text class="reward-desc">{{item.desc}}</text>
+      <text class="reward-status">{{item.statusText}}</text>
     </view>
   </view>
 </view>

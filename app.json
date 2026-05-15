@@ -2,6 +2,7 @@
   "pages": [
     "pages/today/home/index",
     "pages/fish/home/index",
+    "pages/fish/channel/index",
     "pages/fish/detail/index",
     "pages/pet/home/index",
     "pages/work/salary/index",

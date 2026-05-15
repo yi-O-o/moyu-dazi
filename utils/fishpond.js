@@ -1,14 +1,62 @@
 const STORAGE_KEY = "workBuddyFishpondState";
 
 const CHANNELS = [
-  { id: "all", title: "全部", desc: "看看大家怎么上班" },
-  { id: "cup", title: "续命杯", desc: "咖啡、奶茶、保温杯" },
-  { id: "desk", title: "工位角", desc: "桌搭、键盘、工位小物" },
-  { id: "outfit", title: "穿搭", desc: "通勤、开会、舒适办公" },
-  { id: "lunch", title: "午饭", desc: "外卖、便当、食堂" },
-  { id: "fish", title: "摸鱼", desc: "短暂回血和发呆方式" },
-  { id: "wish", title: "下班想", desc: "今晚想做什么" },
-  { id: "pet", title: "宠物", desc: "晒宠物等级和气泡" }
+  {
+    id: "all",
+    title: "全部",
+    desc: "看看大家怎么上班",
+    prompts: ["今天工位发生了什么", "晒一个回血小物", "说一句上班实话"],
+    safeTip: "不要露出公司敏感信息、工牌、客户资料和业务屏幕。"
+  },
+  {
+    id: "cup",
+    title: "续命杯",
+    desc: "咖啡、奶茶、保温杯",
+    prompts: ["今天靠哪杯续命", "杯子里装着什么", "求同款杯子链接"],
+    safeTip: "杯子图尽量避开工牌、电脑屏幕和公司文件。"
+  },
+  {
+    id: "desk",
+    title: "工位角",
+    desc: "桌搭、键盘、工位小物",
+    prompts: ["晒桌面小物", "工位收纳前后", "键盘鼠标和小摆件"],
+    safeTip: "发布前请遮挡屏幕、工牌、文件、姓名和公司敏感信息。"
+  },
+  {
+    id: "outfit",
+    title: "穿搭",
+    desc: "通勤、开会、舒适办公",
+    prompts: ["通勤穿搭", "开会不累套装", "办公室舒适穿法"],
+    safeTip: "穿搭图注意保护个人隐私，避免暴露住址和公司定位。"
+  },
+  {
+    id: "lunch",
+    title: "午饭",
+    desc: "外卖、便当、食堂",
+    prompts: ["今天吃什么", "公司食堂打分", "外卖避雷或推荐"],
+    safeTip: "晒小票时记得遮挡手机号、地址和订单号。"
+  },
+  {
+    id: "fish",
+    title: "摸鱼",
+    desc: "短暂回血和发呆方式",
+    prompts: ["三分钟回血方式", "工位小零食", "今日发呆角落"],
+    safeTip: "摸鱼可以轻松，但不要发布影响自己工作的敏感内容。"
+  },
+  {
+    id: "wish",
+    title: "下班想",
+    desc: "今晚想做什么",
+    prompts: ["下班想吃什么", "今晚想去哪", "有没有人一起"],
+    safeTip: "线下约见建议选择公开场所，先在评论里确认细节。"
+  },
+  {
+    id: "pet",
+    title: "宠物",
+    desc: "晒宠物等级和气泡",
+    prompts: ["今天宠物几级了", "宠物说了什么", "升级截图"],
+    safeTip: "分享截图前确认没有露出个人隐私或账号信息。"
+  }
 ];
 
 const SEED_POSTS = [
@@ -73,6 +121,20 @@ function getChannel(id) {
   return CHANNELS.find((channel) => channel.id === id) || CHANNELS[0];
 }
 
+function getHotTags(posts) {
+  const tagMap = {};
+
+  posts.forEach((post) => {
+    (post.tags || []).forEach((tag) => {
+      tagMap[tag] = (tagMap[tag] || 0) + 1;
+    });
+  });
+
+  return Object.keys(tagMap)
+    .sort((first, second) => tagMap[second] - tagMap[first])
+    .slice(0, 6);
+}
+
 function decoratePost(post) {
   const channel = getChannel(post.channel);
   const comments = (post.comments || []).map((comment) => {
@@ -120,6 +182,28 @@ function listPosts(channel) {
     : posts;
 
   return filtered.map(decoratePost);
+}
+
+function getChannelSummary(channelId) {
+  const state = loadFishpondState();
+  const channel = getChannel(channelId);
+  const posts = channel.id === "all"
+    ? state.posts || []
+    : (state.posts || []).filter((post) => post.channel === channel.id);
+  const comments = posts.reduce((sum, post) => sum + (post.comments || []).length, 0);
+
+  return Object.assign({}, channel, {
+    postCount: posts.length,
+    commentCount: comments,
+    hotTags: getHotTags(posts),
+    latestPosts: posts.slice(0, 3).map(decoratePost)
+  });
+}
+
+function listChannelSummaries() {
+  return CHANNELS.filter((channel) => channel.id !== "all").map((channel) => {
+    return getChannelSummary(channel.id);
+  });
 }
 
 function getPost(postId) {
@@ -265,10 +349,13 @@ module.exports = {
   CHANNELS,
   addComment,
   createPost,
+  getChannel,
+  getChannelSummary,
   getPost,
   getMyComments,
   getMyFavorites,
   getMyPosts,
+  listChannelSummaries,
   listPosts,
   loadFishpondState,
   togglePostReaction

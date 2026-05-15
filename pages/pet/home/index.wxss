@@ -69,6 +69,21 @@
   transform: rotateX(0deg) rotateY(-12deg) translateZ(22rpx) scale(1.04);
 }
 
+.pet-aura {
+  position: absolute;
+  left: 18rpx;
+  top: 18rpx;
+  width: 224rpx;
+  height: 224rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 240, 188, 0.36) 0%, rgba(255, 240, 188, 0.08) 48%, rgba(255, 240, 188, 0) 72%);
+  transform: translateZ(-26rpx);
+  animation-name: petAuraPulse;
+  animation-duration: 2.8s;
+  animation-iteration-count: infinite;
+  pointer-events: none;
+}
+
 .big-shadow {
   position: absolute;
   left: 34rpx;
@@ -99,6 +114,56 @@
   animation-duration: 1.2s;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
+}
+
+.pet-hat {
+  position: absolute;
+  left: 78rpx;
+  top: 26rpx;
+  width: 104rpx;
+  height: 50rpx;
+  border-radius: 50rpx 50rpx 18rpx 18rpx;
+  background: linear-gradient(135deg, #8fbf78 0%, #3f6f64 100%);
+  border: 4rpx solid rgba(255, 253, 249, 0.84);
+  box-sizing: border-box;
+  box-shadow: 0 10rpx 16rpx rgba(63, 111, 100, 0.18);
+  transform: translateZ(70rpx) rotate(-4deg);
+  z-index: 8;
+}
+
+.pet-hat::after {
+  content: "";
+  position: absolute;
+  right: -18rpx;
+  bottom: 2rpx;
+  width: 42rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #3f6f64;
+}
+
+.pet-crown {
+  position: absolute;
+  left: 92rpx;
+  top: 0;
+  width: 78rpx;
+  height: 54rpx;
+  border-radius: 10rpx 10rpx 8rpx 8rpx;
+  background: linear-gradient(135deg, #fff3a6 0%, #f4a261 100%);
+  box-shadow: 0 8rpx 10rpx rgba(151, 92, 52, 0.18);
+  transform: translateZ(86rpx) rotate(2deg);
+  z-index: 9;
+}
+
+.pet-crown::before {
+  content: "";
+  position: absolute;
+  left: 8rpx;
+  top: -18rpx;
+  width: 62rpx;
+  height: 28rpx;
+  border-radius: 50% 50% 10rpx 10rpx;
+  background: linear-gradient(135deg, #fff7bf 0%, #e3a92f 100%);
 }
 
 .big-ear {
@@ -234,6 +299,60 @@
   border-radius: 50%;
   background: rgba(243, 248, 211, 0.62);
   box-shadow: inset -8rpx -8rpx 12rpx rgba(98, 130, 76, 0.12);
+}
+
+.pet-scarf {
+  position: absolute;
+  left: 24rpx;
+  top: 10rpx;
+  width: 96rpx;
+  height: 24rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, #b65f2a 0%, #f4a261 100%);
+  transform: translateZ(34rpx) rotate(-3deg);
+  z-index: 5;
+}
+
+.pet-scarf::after {
+  content: "";
+  position: absolute;
+  right: 8rpx;
+  top: 16rpx;
+  width: 24rpx;
+  height: 42rpx;
+  border-radius: 8rpx;
+  background: #d97745;
+}
+
+.pet-badge,
+.pet-medal {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateZ(40rpx);
+  z-index: 6;
+}
+
+.pet-badge {
+  right: 32rpx;
+  top: 42rpx;
+  width: 34rpx;
+  height: 34rpx;
+  color: #fffaf4;
+  background: #b65f2a;
+  font-size: 20rpx;
+  font-weight: 900;
+}
+
+.pet-medal {
+  left: 54rpx;
+  top: 44rpx;
+  width: 36rpx;
+  height: 36rpx;
+  background: linear-gradient(135deg, #fff3a6 0%, #d99a2b 100%);
+  border: 4rpx solid rgba(255, 253, 249, 0.8);
 }
 
 .pet-arm {
@@ -413,6 +532,19 @@
   }
 }
 
+@keyframes petAuraPulse {
+  0%,
+  100% {
+    opacity: 0.54;
+    transform: translateZ(-26rpx) scale(0.92);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translateZ(-26rpx) scale(1.08);
+  }
+}
+
 .pet-dialog {
   margin-top: 24rpx;
   padding: 28rpx;
@@ -478,5 +610,57 @@
   align-items: center;
   justify-content: center;
   font-size: 27rpx;
+  font-weight: 800;
+}
+
+.reward-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.reward-card {
+  min-height: 178rpx;
+  padding: 22rpx;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  border: 2rpx solid rgba(234, 217, 201, 0.78);
+  background: rgba(255, 253, 249, 0.96);
+  box-shadow: 0 14rpx 34rpx rgba(118, 82, 55, 0.06);
+}
+
+.reward-card.unlocked {
+  border-color: #dfe9bf;
+  background: linear-gradient(135deg, #fffaf3 0%, #f7fbe8 100%);
+}
+
+.reward-card.locked {
+  opacity: 0.62;
+}
+
+.reward-title {
+  display: block;
+  color: #3a2a22;
+  font-size: 26rpx;
+  line-height: 1.32;
+  font-weight: 800;
+}
+
+.reward-desc {
+  display: block;
+  margin-top: 8rpx;
+  color: #8a7467;
+  font-size: 23rpx;
+  line-height: 1.42;
+}
+
+.reward-status {
+  display: inline-flex;
+  margin-top: 12rpx;
+  padding: 6rpx 10rpx;
+  border-radius: 8rpx;
+  color: #b65f2a;
+  background: #fff0dc;
+  font-size: 21rpx;
   font-weight: 800;
 }

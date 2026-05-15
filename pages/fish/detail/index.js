@@ -9,7 +9,8 @@ Page({
   data: {
     postId: null,
     post: null,
-    commentInput: ""
+    commentInput: "",
+    pointFeedback: null
   },
 
   onLoad(options) {
@@ -77,6 +78,7 @@ Page({
       commentInput: ""
     });
     this.refreshPost();
+    this.playPointFeedback(pointResult, "评论");
     wx.showToast({
       title: pointResult.added > 0 ? "评论 +1" : "评论成功",
       icon: "none",
@@ -100,5 +102,26 @@ Page({
         });
       }
     });
+  },
+
+  playPointFeedback(result, title) {
+    if (!result || result.added <= 0) return;
+
+    if (this.pointTimer) clearTimeout(this.pointTimer);
+    this.setData({
+      pointFeedback: {
+        title,
+        value: `+${result.added}`
+      }
+    });
+    this.pointTimer = setTimeout(() => {
+      this.setData({
+        pointFeedback: null
+      });
+    }, 1350);
+  },
+
+  onUnload() {
+    if (this.pointTimer) clearTimeout(this.pointTimer);
   }
 });

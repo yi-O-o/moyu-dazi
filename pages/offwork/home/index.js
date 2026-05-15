@@ -27,6 +27,7 @@ Page({
     publishOpen: false,
     publishButtonText: "发约局",
     commentInputs: {},
+    pointFeedback: null,
     form: {
       type: "food",
       title: "",
@@ -39,6 +40,10 @@ Page({
 
   onShow() {
     this.refreshMeetups();
+  },
+
+  onUnload() {
+    if (this.pointTimer) clearTimeout(this.pointTimer);
   },
 
   refreshMeetups() {
@@ -214,10 +219,28 @@ Page({
   },
 
   showPointToast(result, title) {
+    this.playPointFeedback(result, title);
     wx.showToast({
       title: result.added > 0 ? `${title} +${result.added}` : `${title}成功`,
       icon: "none",
       duration: 1200
     });
+  },
+
+  playPointFeedback(result, title) {
+    if (!result || result.added <= 0) return;
+
+    if (this.pointTimer) clearTimeout(this.pointTimer);
+    this.setData({
+      pointFeedback: {
+        title,
+        value: `+${result.added}`
+      }
+    });
+    this.pointTimer = setTimeout(() => {
+      this.setData({
+        pointFeedback: null
+      });
+    }, 1350);
   }
 });

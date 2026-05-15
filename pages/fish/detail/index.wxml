@@ -1,4 +1,9 @@
 <view class="page detail-page" wx:if="{{post}}">
+  <view class="point-feedback" wx:if="{{pointFeedback}}">
+    <text class="point-feedback-title">{{pointFeedback.title}}</text>
+    <text class="point-feedback-value">{{pointFeedback.value}}</text>
+  </view>
+
   <view class="detail-card">
     <view class="post-head">
       <view class="avatar">{{post.avatar}}</view>
