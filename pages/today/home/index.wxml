@@ -1,0 +1,165 @@
+<view class="page today-page">
+  <view
+    class="home-pet {{petActionClass}} {{petDragClass}}"
+    style="left: {{homePetPosition.x}}px; top: {{homePetPosition.y}}px;"
+    bindtap="playWithPet"
+    bindtouchstart="startHomePetDrag"
+    catchtouchmove="moveHomePet"
+    bindtouchend="endHomePetDrag"
+    bindtouchcancel="endHomePetDrag"
+  >
+    <view class="home-pet-bubble">{{petMessage}}</view>
+    <view class="home-pet-shadow"></view>
+    <view class="home-pet-tail"></view>
+    <view class="home-pet-body">
+      <view class="home-pet-belly"></view>
+      <view class="home-pet-foot left"></view>
+      <view class="home-pet-foot right"></view>
+    </view>
+    <view class="home-pet-ear left">
+      <view class="home-pet-ear-inner"></view>
+    </view>
+    <view class="home-pet-ear right">
+      <view class="home-pet-ear-inner"></view>
+    </view>
+    <view class="home-pet-face">
+      <view class="home-pet-eye left"></view>
+      <view class="home-pet-eye right"></view>
+      <view class="home-pet-nose"></view>
+      <view class="home-pet-mouth"></view>
+      <view class="home-pet-blush left"></view>
+      <view class="home-pet-blush right"></view>
+    </view>
+    <view class="home-pet-arm left"></view>
+    <view class="home-pet-arm right"></view>
+  </view>
+
+  <view class="dashboard">
+    <view class="dashboard-rain">
+      <view wx:for="{{dashboardMoney}}" wx:key="id" class="{{item.className}}">¥</view>
+    </view>
+    <view class="dashboard-copy">
+      <text class="eyebrow light">今日打工状态</text>
+      <text class="dashboard-title">今天也有人陪你慢慢来</text>
+      <text class="dashboard-subtitle">{{statusText}}</text>
+    </view>
+    <view class="money-card">
+      <text class="money-label">今天已经好好坚持了</text>
+      <text class="money-value">¥{{stats.earned}}</text>
+      <text class="money-rate">每秒都有一点小回报 +¥{{stats.incomePerSecond}}</text>
+    </view>
+  </view>
+
+  <view class="progress-panel" bindtap="goSalary">
+    <view class="progress-head">
+      <text>今日进度 {{stats.progressPercent}}%</text>
+      <text>掉钱模式 ›</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{stats.progressPercent}}%;"></view>
+    </view>
+    <view class="progress-meta">
+      <text>{{config.startTime}} 开始</text>
+      <text>离下班 {{stats.remainingTime}}</text>
+    </view>
+  </view>
+
+  <view class="growth-panel">
+    <view>
+      <text class="growth-kicker">宠物成长积分</text>
+      <text class="growth-title">Lv.{{game.level.level}} {{game.level.title}}</text>
+      <text class="growth-desc">总积分 {{game.points}}，今日 +{{game.todayPoints}}。升级后可解锁装扮、福利池和搭子圈身份。</text>
+    </view>
+    <view class="growth-meter">
+      <view class="growth-fill" style="width: {{game.level.progress}}%;"></view>
+    </view>
+    <view class="growth-meta">
+      <text>下一阶：{{game.level.nextTitle}}</text>
+      <text>{{game.level.nextPoints}} 分</text>
+    </view>
+  </view>
+
+  <view class="wish-panel">
+    <view class="panel-head">
+      <view>
+        <text class="panel-kicker">下班许愿池</text>
+        <text class="panel-title">今天下班想做什么</text>
+      </view>
+      <text class="panel-tag">首次 +1</text>
+    </view>
+    <view class="wish-input-row">
+      <input class="wish-input" maxlength="24" placeholder="例如：吃火锅、打球、回家躺平" value="{{wishInput}}" bindinput="handleWishInput" />
+      <view class="wish-button" bindtap="submitWish">放进去</view>
+    </view>
+    <view class="wish-list" wx:if="{{game.wishes.length}}">
+      <view class="wish-chip" wx:for="{{game.wishes}}" wx:key="id">
+        <text>{{item.text}}</text>
+        <text class="wish-share" bindtap="shareWishToFish" data-text="{{item.text}}">发鱼塘</text>
+        <text class="wish-delete" bindtap="deleteWish" data-id="{{item.id}}">×</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="mystic-panel">
+    <view class="panel-head">
+      <view>
+        <text class="panel-kicker">玄学一下</text>
+        <text class="panel-title">抽一支今日工位签</text>
+      </view>
+      <text class="panel-tag">首次 +1</text>
+    </view>
+    <view class="mystic-empty" wx:if="{{!mysticResult}}">
+      <text>不知道今天适合硬刚、低调、摸鱼，还是直接盼下班。</text>
+      <view class="mystic-button" bindtap="drawMysticSign">抽一下</view>
+    </view>
+    <view class="mystic-result" wx:else>
+      <view class="mystic-title-row">
+        <text class="mystic-level">{{mysticResult.level}}</text>
+        <text class="mystic-title">{{mysticResult.title}}</text>
+      </view>
+      <text class="mystic-desc">{{mysticResult.desc}}</text>
+      <text class="mystic-line">{{mysticResult.lucky}}</text>
+      <text class="mystic-line muted-line">{{mysticResult.avoid}}</text>
+      <view class="mystic-action-row">
+        <view class="mystic-button secondary" bindtap="drawMysticSign">再抽一次</view>
+        <view class="mystic-button secondary" bindtap="shareMysticToFish">发鱼塘</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="quick-grid">
+    <view class="quick-card primary" bindtap="goPet">
+      <text class="quick-icon">宠</text>
+      <text class="quick-title">宠物小窝</text>
+      <text class="quick-desc">看看小搭子在干嘛</text>
+    </view>
+    <view class="quick-card" bindtap="quickFishBreak">
+      <text class="quick-icon">鱼</text>
+      <text class="quick-title">摸鱼一下</text>
+      <text class="quick-desc">短暂休息不内疚</text>
+    </view>
+    <view class="quick-card" bindtap="goFish">
+      <text class="quick-icon">鱼</text>
+      <text class="quick-title">摸鱼广场</text>
+      <text class="quick-desc">看看大家上班动态</text>
+    </view>
+    <view class="quick-card warm" bindtap="goOffwork">
+      <text class="quick-icon">约</text>
+      <text class="quick-title">下班找搭子</text>
+      <text class="quick-desc">把生活接回来</text>
+    </view>
+  </view>
+
+  <view class="section-head">
+    <text class="section-title">下班后的温柔安排</text>
+    <text class="section-action">下班后</text>
+  </view>
+  <view class="after-card" bindtap="goOffwork">
+    <view>
+      <text class="after-title">八点去动一动？</text>
+      <text class="after-desc">羽毛球缺 2 人，新手友好，出点汗，把今天翻篇。</text>
+    </view>
+    <text class="after-arrow">›</text>
+  </view>
+
+</view>

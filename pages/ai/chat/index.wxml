@@ -1,0 +1,20 @@
+<view class="page chat-page">
+  <view class="chat-head">
+    <view>
+      <text class="eyebrow">AI Chat</text>
+      <text class="chat-title">和助手继续聊</text>
+    </view>
+    <view class="status-pill">在线</view>
+  </view>
+
+  <scroll-view class="message-list" scroll-y scroll-with-animation scroll-into-view="{{scrollTo}}">
+    <view class="message {{item.role}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
+      <text>{{item.content}}</text>
+    </view>
+  </scroll-view>
+
+  <view class="composer">
+    <textarea class="composer-input" placeholder="输入你想问 AI 的问题" value="{{prompt}}" bindinput="onInput" auto-height maxlength="500" />
+    <button class="send-button" loading="{{loading}}" bindtap="sendMessage">发送</button>
+  </view>
+</view>

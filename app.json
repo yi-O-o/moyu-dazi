@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/today/home/index",
+    "pages/fish/home/index",
+    "pages/fish/detail/index",
+    "pages/pet/home/index",
+    "pages/work/salary/index",
+    "pages/offwork/home/index",
+    "pages/ai/chat/index",
+    "pages/ai/writer/index",
+    "pages/ai/image/index",
+    "pages/profile/home/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "摸鱼搭子",
+    "navigationBarBackgroundColor": "#F8E8D5",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFF8EF",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#9B8475",
+    "selectedColor": "#B65F2A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/today/home/index",
+        "text": "今日"
+      },
+      {
+        "pagePath": "pages/fish/home/index",
+        "text": "鱼塘"
+      },
+      {
+        "pagePath": "pages/offwork/home/index",
+        "text": "下班"
+      },
+      {
+        "pagePath": "pages/profile/home/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

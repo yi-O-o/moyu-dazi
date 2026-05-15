@@ -1,0 +1,60 @@
+<view class="page pet-home-page">
+  <view class="pet-stage" id="petStage">
+    <view class="stage-glow one"></view>
+    <view class="stage-glow two"></view>
+    <view class="stage-ground"></view>
+    <view
+      class="pet-big pet-3d {{actionClass}} {{dragClass}}"
+      style="left: {{petPosition.x}}px; top: {{petPosition.y}}px;"
+      bindtap="playPet"
+      bindtouchstart="startPetDrag"
+      catchtouchmove="movePet"
+      bindtouchend="endPetDrag"
+      bindtouchcancel="endPetDrag"
+    >
+      <view class="big-shadow"></view>
+      <view class="pet-tail"></view>
+      <view class="big-body">
+        <view class="body-belly"></view>
+        <view class="pet-foot left"></view>
+        <view class="pet-foot right"></view>
+      </view>
+      <view class="big-ear left">
+        <view class="ear-inner"></view>
+      </view>
+      <view class="big-ear right">
+        <view class="ear-inner"></view>
+      </view>
+      <view class="big-face">
+        <view class="big-eye left"></view>
+        <view class="big-eye right"></view>
+        <view class="big-nose"></view>
+        <view class="big-mouth"></view>
+        <view class="big-blush left"></view>
+        <view class="big-blush right"></view>
+      </view>
+      <view class="pet-arm left"></view>
+      <view class="pet-arm right"></view>
+    </view>
+    <view wx:for="{{hearts}}" wx:key="id" class="{{item.className}}">♥</view>
+  </view>
+
+  <view class="pet-dialog">
+    <text class="dialog-title">工位小搭子</text>
+    <text class="dialog-text">{{message}}</text>
+    <view class="pet-level-strip">
+      <text>Lv.{{game.level.level}} {{game.level.title}}</text>
+      <text>{{game.points}} 分</text>
+    </view>
+    <view class="pet-level-track">
+      <view class="pet-level-fill" style="width: {{game.level.progress}}%;"></view>
+    </view>
+  </view>
+
+  <view class="section-title">互动</view>
+  <view class="action-grid">
+    <view class="action-card" wx:for="{{actions}}" wx:key="id" bindtap="playPet" data-text="{{item.text}}">
+      <text>{{item.title}}</text>
+    </view>
+  </view>
+</view>

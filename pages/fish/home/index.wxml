@@ -1,0 +1,115 @@
+<view class="page fish-page">
+  <view class="fish-hero">
+    <view>
+      <text class="eyebrow light">摸鱼广场</text>
+      <text class="fish-title">上班人的动态池</text>
+      <text class="fish-subtitle">晒杯子、工位、穿搭、午饭和那些短暂回血的小事。</text>
+      <text class="fish-exp">发动态和评论会喂养宠物 · Lv.{{game.level.level}} · 今日 +{{game.todayPoints}}</text>
+    </view>
+    <view class="publish-button" bindtap="togglePublish">{{publishOpen ? "收起" : "发动态"}}</view>
+  </view>
+
+  <scroll-view class="channel-scroll" scroll-x="true" enable-flex="true">
+    <view class="channel-row">
+      <view
+        wx:for="{{channels}}"
+        wx:key="id"
+        class="{{item.className}}"
+        bindtap="switchChannel"
+        data-id="{{item.id}}"
+      >
+        <text>{{item.title}}</text>
+      </view>
+    </view>
+  </scroll-view>
+  <text class="channel-desc">{{activeChannelDesc}}</text>
+
+  <view class="publish-panel" wx:if="{{publishOpen}}">
+    <text class="publish-title">发一条上班动态</text>
+    <view class="publish-channel-row">
+      <view
+        wx:for="{{publishChannels}}"
+        wx:key="id"
+        class="{{item.className}}"
+        bindtap="changePublishChannel"
+        data-id="{{item.id}}"
+      >
+        {{item.title}}
+      </view>
+    </view>
+    <input class="pond-input" maxlength="24" placeholder="标题，比如：今天靠这杯续命" value="{{form.title}}" bindinput="handleTitleInput" />
+    <textarea class="pond-textarea" maxlength="200" placeholder="随便写几句，轻一点就好" value="{{form.content}}" bindinput="handleContentInput"></textarea>
+    <input class="pond-input" maxlength="36" placeholder="标签，用空格隔开，比如 咖啡 续命 工位" value="{{form.tagInput}}" bindinput="handleTagInput" />
+    <view class="image-picker">
+      <view class="picked-image-wrap" wx:for="{{form.images}}" wx:for-item="image" wx:for-index="index" wx:key="*this">
+        <image class="picked-image" src="{{image}}" mode="aspectFill" bindtap="previewImage" data-src="{{image}}" data-urls="{{form.images}}"></image>
+        <view class="remove-image" catchtap="removePublishImage" data-index="{{index}}">×</view>
+      </view>
+      <view class="add-image" bindtap="chooseImages" wx:if="{{form.images.length < 6}}">
+        <text>＋</text>
+        <text>加图</text>
+      </view>
+    </view>
+    <text class="safe-tip">发工位图时记得遮挡屏幕、工牌、文件和公司敏感信息。</text>
+    <view class="submit-post" bindtap="publishPost">发到鱼塘</view>
+  </view>
+
+  <view class="post-list">
+    <view class="empty-pond" wx:if="{{!posts.length}}">
+      <text class="empty-title">这个频道还没人摸鱼</text>
+      <text class="empty-desc">你可以发第一条动态，宠物会记得这口经验。</text>
+      <view class="empty-button" bindtap="togglePublish">发一条</view>
+    </view>
+
+    <view class="post-card" wx:for="{{posts}}" wx:for-item="post" wx:key="id" bindtap="goPostDetail" data-id="{{post.id}}">
+      <view class="post-head">
+        <view class="avatar">{{post.avatar}}</view>
+        <view>
+          <text class="post-author">{{post.author}}</text>
+          <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>
+        </view>
+        <text class="post-more" catchtap="reportPost">···</text>
+      </view>
+
+      <text class="post-title">{{post.title}}</text>
+      <text class="post-content">{{post.content}}</text>
+
+      <view class="post-images image-count-{{post.imageCount}}" wx:if="{{post.imageCount}}">
+        <image
+          class="post-image"
+          wx:for="{{post.images}}"
+          wx:for-item="image"
+          wx:key="*this"
+          src="{{image}}"
+          mode="aspectFill"
+          catchtap="previewImage"
+          data-src="{{image}}"
+          data-urls="{{post.images}}"
+        ></image>
+      </view>
+
+      <view class="tag-row" wx:if="{{post.tags.length}}">
+        <text class="post-tag" wx:for="{{post.tags}}" wx:for-item="tag" wx:key="*this">#{{tag}}</text>
+      </view>
+
+      <view class="post-actions">
+        <view class="post-action {{post.liked ? 'active' : ''}}" catchtap="reactPost" data-id="{{post.id}}" data-type="like">{{post.likeText}} {{post.likeCount}}</view>
+        <view class="post-action" catchtap="openComment" data-id="{{post.id}}">评论 {{post.commentCount}}</view>
+        <view class="post-action {{post.favorited ? 'active' : ''}}" catchtap="reactPost" data-id="{{post.id}}" data-type="favorite">{{post.favoriteText}} {{post.favoriteCount}}</view>
+        <view class="post-action" catchtap="reactPost" data-id="{{post.id}}" data-type="same">同款 {{post.sameCount}}</view>
+      </view>
+
+      <view class="comment-list" wx:if="{{post.latestComments.length}}">
+        <view class="comment-item" wx:for="{{post.latestComments}}" wx:for-item="comment" wx:key="id">
+          <text class="comment-author">{{comment.author}}</text>
+          <text class="comment-content">{{comment.content}}</text>
+        </view>
+      </view>
+
+      <view class="comment-box" wx:if="{{post.commentOpen}}" catchtap="noop">
+        <input class="comment-input" maxlength="80" placeholder="轻轻评论一句" value="{{commentInput}}" bindinput="handleCommentInput" />
+        <view class="comment-submit" catchtap="submitComment" data-id="{{post.id}}">发送</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,113 @@
+<view class="page profile-page">
+  <view class="profile-head">
+    <view class="avatar">搭</view>
+    <view>
+      <text class="eyebrow">My Desk</text>
+      <text class="name">摸鱼搭子</text>
+      <text class="desc">工资、鱼塘、宠物和一点下班后的期待都在这里。</text>
+    </view>
+  </view>
+
+  <view class="section-title">打工设置</view>
+  <view class="panel list">
+    <view class="list-row">
+      <text>月工资</text>
+      <text class="strong">¥{{settings.monthlySalary}}</text>
+    </view>
+    <view class="list-row">
+      <text>工作日</text>
+      <text class="muted">每月 {{settings.workDaysPerMonth}} 天</text>
+    </view>
+    <view class="list-row">
+      <text>上班时间</text>
+      <text class="muted">{{settings.startTime}} - {{settings.endTime}}</text>
+    </view>
+  </view>
+
+  <view class="section-title">宠物状态</view>
+  <view class="panel pet-status">
+    <view class="pet-badge">Lv.3</view>
+    <view>
+      <text class="pet-name">工位小搭子</text>
+      <text class="pet-info">亲密度 68%，今天已经陪你慢慢坚持了 ¥{{todayEarned}}</text>
+    </view>
+  </view>
+
+  <view class="section-title">我的约局</view>
+  <view class="panel booking">
+    <text class="booking-title">今晚暂无固定安排</text>
+    <text class="booking-desc">可以去下班页看看球局、娱乐麻将或今天吃什么。</text>
+  </view>
+
+  <view class="section-title">我的鱼塘</view>
+  <view class="panel pond-panel">
+    <view class="pond-stats">
+      <view>
+        <text class="pond-stat-value">{{myPosts.length}}</text>
+        <text class="pond-stat-label">发布</text>
+      </view>
+      <view>
+        <text class="pond-stat-value">{{myComments.length}}</text>
+        <text class="pond-stat-label">评论</text>
+      </view>
+      <view>
+        <text class="pond-stat-value">{{myFavorites.length}}</text>
+        <text class="pond-stat-label">收藏</text>
+      </view>
+    </view>
+
+    <view class="pond-tabs">
+      <view class="{{item.className}}" wx:for="{{pondTabs}}" wx:key="id" bindtap="switchPondTab" data-id="{{item.id}}">
+        {{item.title}}
+      </view>
+    </view>
+
+    <view wx:if="{{pondTab === 'posts'}}">
+      <view class="pond-empty" wx:if="{{!myPosts.length}}">还没发过动态，去鱼塘冒个泡。</view>
+      <view class="pond-item" wx:for="{{myPosts}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.id}}">
+        <view>
+          <text class="pond-item-title">{{item.title}}</text>
+          <text class="pond-item-meta">{{item.channelTitle}} · {{item.createdAt}} · 评论 {{item.commentCount}}</text>
+        </view>
+        <text class="pond-item-arrow">›</text>
+      </view>
+    </view>
+
+    <view wx:elif="{{pondTab === 'comments'}}">
+      <view class="pond-empty" wx:if="{{!myComments.length}}">还没评论过，轻轻说一句也算喂宠物。</view>
+      <view class="pond-item" wx:for="{{myComments}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.postId}}">
+        <view>
+          <text class="pond-item-title">{{item.content}}</text>
+          <text class="pond-item-meta">评论了《{{item.postTitle}}》 · {{item.channelTitle}}</text>
+        </view>
+        <text class="pond-item-arrow">›</text>
+      </view>
+    </view>
+
+    <view wx:else>
+      <view class="pond-empty" wx:if="{{!myFavorites.length}}">还没有收藏，看到喜欢的动态可以先藏起来。</view>
+      <view class="pond-item" wx:for="{{myFavorites}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.id}}">
+        <view>
+          <text class="pond-item-title">{{item.title}}</text>
+          <text class="pond-item-meta">{{item.channelTitle}} · {{item.author}} · 赞 {{item.likeCount}}</text>
+        </view>
+        <text class="pond-item-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-title">成就徽章</view>
+  <view class="badge-grid">
+    <view class="badge-card" wx:for="{{badges}}" wx:key="id">
+      <text class="badge-icon">{{item.icon}}</text>
+      <text class="badge-title">{{item.title}}</text>
+      <text class="badge-desc">{{item.desc}}</text>
+    </view>
+  </view>
+
+  <view class="future-card">
+    <text class="future-kicker">第二版</text>
+    <text class="future-title">下班 AI 创造歌曲</text>
+    <text class="future-desc">以后可以把今天的心情、球局和饭局，生成一首暖暖的下班歌。</text>
+  </view>
+</view>

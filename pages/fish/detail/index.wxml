@@ -1,0 +1,65 @@
+<view class="page detail-page" wx:if="{{post}}">
+  <view class="detail-card">
+    <view class="post-head">
+      <view class="avatar">{{post.avatar}}</view>
+      <view>
+        <text class="post-author">{{post.author}}</text>
+        <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>
+      </view>
+      <text class="post-more" bindtap="reportPost">···</text>
+    </view>
+
+    <text class="detail-title">{{post.title}}</text>
+    <text class="detail-content">{{post.content}}</text>
+
+    <view class="detail-images image-count-{{post.imageCount}}" wx:if="{{post.imageCount}}">
+      <image
+        class="detail-image"
+        wx:for="{{post.images}}"
+        wx:for-item="image"
+        wx:key="*this"
+        src="{{image}}"
+        mode="aspectFill"
+        bindtap="previewImage"
+        data-src="{{image}}"
+      ></image>
+    </view>
+
+    <view class="tag-row" wx:if="{{post.tags.length}}">
+      <text class="post-tag" wx:for="{{post.tags}}" wx:for-item="tag" wx:key="*this">#{{tag}}</text>
+    </view>
+
+    <view class="post-actions">
+      <view class="post-action {{post.liked ? 'active' : ''}}" bindtap="reactPost" data-type="like">{{post.likeText}} {{post.likeCount}}</view>
+      <view class="post-action {{post.favorited ? 'active' : ''}}" bindtap="reactPost" data-type="favorite">{{post.favoriteText}} {{post.favoriteCount}}</view>
+      <view class="post-action" bindtap="reactPost" data-type="same">同款 {{post.sameCount}}</view>
+    </view>
+  </view>
+
+  <view class="comment-panel">
+    <view class="panel-head">
+      <text class="panel-title">讨论 {{post.commentCount}}</text>
+    </view>
+    <view class="comment-list" wx:if="{{post.comments.length}}">
+      <view class="comment-item" wx:for="{{post.comments}}" wx:for-item="comment" wx:key="id">
+        <view class="comment-avatar">{{comment.avatar}}</view>
+        <view>
+          <text class="comment-author">{{comment.author}}</text>
+          <text class="comment-content">{{comment.content}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty-comment" wx:else>还没人说话，轻轻开个头。</view>
+  </view>
+
+  <view class="comment-bar">
+    <input class="comment-input" maxlength="80" placeholder="轻轻评论一句" value="{{commentInput}}" bindinput="handleCommentInput" />
+    <view class="comment-submit" bindtap="submitComment">发送</view>
+  </view>
+</view>
+
+<view class="page detail-page" wx:else>
+  <view class="missing-card">
+    <text>这条动态走丢了。</text>
+  </view>
+</view>

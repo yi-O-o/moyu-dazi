@@ -1,0 +1,90 @@
+<view class="salary-page">
+  <view class="money-sky">
+    <view class="bg-money">¥{{stats.earned}}</view>
+    <view wx:for="{{coins}}" wx:key="id" class="{{item.className}}">{{item.text}}</view>
+    <view class="impact one"></view>
+    <view class="impact two"></view>
+    <view class="impact three"></view>
+    <view class="impact four"></view>
+    <view class="flash one"></view>
+    <view class="flash two"></view>
+    <view class="flash three"></view>
+  </view>
+
+  <view class="top-bar">
+    <view>
+      <text class="eyebrow warm">掉钱模式</text>
+      <text class="page-title">看钱砸进今天</text>
+    </view>
+    <button class="setting-button" bindtap="openSettings">设置</button>
+  </view>
+
+  <view class="center-card">
+    <text class="earn-label">今日已赚</text>
+    <text class="earn-value">¥{{stats.earned}}</text>
+    <text class="earn-note">每秒掉下 +¥{{stats.incomePerSecond}}</text>
+  </view>
+
+  <view class="bottom-panel">
+    <view class="progress-head">
+      <text>今日进度 {{stats.progressPercent}}%</text>
+      <text>离下班 {{stats.remainingTime}}</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{stats.progressPercent}}%;"></view>
+    </view>
+    <view class="progress-meta">
+      <text>{{config.startTime}} 开始</text>
+      <text>{{config.endTime}} 下班</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showSettings}}" class="modal-mask" bindtap="closeSettings">
+    <view class="settings-sheet" catchtap="noop">
+      <view class="sheet-head">
+        <view>
+          <text class="sheet-title">设置工资</text>
+          <text class="sheet-desc">保存后首页工资数据会一起更新</text>
+        </view>
+        <text class="sheet-close" bindtap="closeSettings">×</text>
+      </view>
+
+      <view class="settings-panel">
+        <view class="field-row">
+          <view>
+            <text class="field-label">月工资</text>
+            <text class="field-desc">用来计算每天和每秒的收入</text>
+          </view>
+          <input class="field-input" type="digit" value="{{form.monthlySalary}}" bindinput="onSalaryInput" />
+        </view>
+        <view class="field-row">
+          <view>
+            <text class="field-label">每月工作天数</text>
+            <text class="field-desc">默认按 22 天计算</text>
+          </view>
+          <input class="field-input small" type="number" value="{{form.workDaysPerMonth}}" bindinput="onDaysInput" />
+        </view>
+        <view class="field-row">
+          <view>
+            <text class="field-label">上班时间</text>
+            <text class="field-desc">今天从什么时候开始算</text>
+          </view>
+          <picker mode="time" value="{{form.startTime}}" bindchange="onStartTimeChange">
+            <view class="time-picker">{{form.startTime}}</view>
+          </picker>
+        </view>
+        <view class="field-row">
+          <view>
+            <text class="field-label">下班时间</text>
+            <text class="field-desc">倒计时会算到这里</text>
+          </view>
+          <picker mode="time" value="{{form.endTime}}" bindchange="onEndTimeChange">
+            <view class="time-picker">{{form.endTime}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <button class="save-button" bindtap="saveSettings">保存设置</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,75 @@
+<view class="page offwork-page">
+  <view class="off-hero">
+    <view>
+      <text class="eyebrow warm-light">下班搭子</text>
+      <text class="off-title">把自己从工位接出来</text>
+      <text class="off-subtitle">约饭、打球、散步、电影，给今天找一个轻松的收尾。</text>
+    </view>
+    <view class="publish-button" bindtap="togglePublish">{{publishButtonText}}</view>
+  </view>
+
+  <scroll-view class="type-scroll" scroll-x="true" enable-flex="true">
+    <view class="type-row">
+      <view class="{{item.className}}" wx:for="{{types}}" wx:key="id" bindtap="switchType" data-id="{{item.id}}">
+        {{item.title}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="publish-panel" wx:if="{{publishOpen}}">
+    <text class="publish-title">发一个下班约局</text>
+    <view class="publish-type-row">
+      <view class="{{item.className}}" wx:for="{{publishTypes}}" wx:key="id" bindtap="changePublishType" data-id="{{item.id}}">
+        {{item.title}}
+      </view>
+    </view>
+    <input class="meetup-input" maxlength="24" placeholder="标题，比如：今晚火锅饭搭子" value="{{form.title}}" bindinput="handleTitleInput" />
+    <view class="form-row">
+      <input class="meetup-input half" maxlength="12" placeholder="时间，如 19:30" value="{{form.time}}" bindinput="handleTimeInput" />
+      <input class="meetup-input half" type="number" maxlength="2" placeholder="人数" value="{{form.size}}" bindinput="handleSizeInput" />
+    </view>
+    <input class="meetup-input" maxlength="24" placeholder="地点，比如：公司附近 / 地铁口" value="{{form.location}}" bindinput="handleLocationInput" />
+    <textarea class="meetup-textarea" maxlength="120" placeholder="补充说明：AA、是否新手友好、想聊什么都可以" value="{{form.desc}}" bindinput="handleDescInput"></textarea>
+    <text class="safe-tip">线下见面注意安全，建议选择公开场所，先在评论里确认细节。</text>
+    <view class="submit-meetup" bindtap="publishMeetup">发布约局</view>
+  </view>
+
+  <view class="section-head">
+    <text class="section-title">今晚有人想一起</text>
+    <text class="section-action">发布 +3 / 报名 +2</text>
+  </view>
+
+  <view class="meetup-list">
+    <view class="empty-meetup" wx:if="{{emptyVisible}}">
+      <text class="empty-title">这个分类还没人约</text>
+      <text class="empty-desc">你可以发第一个局，把下班从“回家刷手机”里捞出来。</text>
+      <view class="empty-button" bindtap="togglePublish">发一个</view>
+    </view>
+
+    <view class="{{item.cardClass}}" wx:for="{{meetups}}" wx:key="id">
+      <view class="meetup-head">
+        <text class="meetup-tag">{{item.typeTitle}}</text>
+        <text class="meetup-status">{{item.statusText}}</text>
+      </view>
+      <text class="meetup-title">{{item.title}}</text>
+      <text class="meetup-desc">{{item.desc}}</text>
+      <view class="meetup-meta">
+        <text>{{item.time}}</text>
+        <text>{{item.location}}</text>
+        <text>{{item.joined}}/{{item.size}} 人</text>
+      </view>
+      <view class="meetup-footer">
+        <text class="meetup-author">由 {{item.author}} 发起 · {{item.createdAt}}</text>
+        <view class="{{item.joinButtonClass}}" bindtap="joinMeetup" data-id="{{item.id}}">
+          {{item.joinText}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="song-preview">
+    <text class="song-kicker">后续能力</text>
+    <text class="song-title">许愿池一键转约局</text>
+    <text class="song-desc">之后可以把“想吃火锅”“想散步”直接变成一个下班约局。</text>
+  </view>
+</view>
