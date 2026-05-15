@@ -67,7 +67,9 @@ const SEED_POSTS = [
     content: "杯子不大，但装得下我上午所有的怨气。",
     tags: ["咖啡", "续命", "杯子"],
     mood: "还行",
-    images: [],
+    images: [
+      "mock:cup"
+    ],
     author: "早八打工人",
     createdAt: "09:35",
     likeCount: 12,
@@ -86,7 +88,10 @@ const SEED_POSTS = [
     content: "屏幕已打码，桌面干净到像刚入职。",
     tags: ["桌搭", "收纳", "工位"],
     mood: "清爽",
-    images: [],
+    images: [
+      "mock:desk",
+      "mock:keyboard"
+    ],
     author: "桌面整理员",
     createdAt: "10:12",
     likeCount: 18,
@@ -103,7 +108,11 @@ const SEED_POSTS = [
     content: "舒适第一，正式第二，灵魂已经在等下班。",
     tags: ["通勤", "舒适", "穿搭"],
     mood: "想下班",
-    images: [],
+    images: [
+      "mock:outfit",
+      "mock:bag",
+      "mock:shoes"
+    ],
     author: "通勤衣柜",
     createdAt: "11:05",
     likeCount: 9,
@@ -144,12 +153,25 @@ function decoratePost(post) {
   });
   const tags = post.tags || [];
   const images = post.images || [];
+  const imageTiles = images.map((image, index) => {
+    const isMock = String(image).indexOf("mock:") === 0;
+    const mockType = isMock ? String(image).replace("mock:", "") : "";
+
+    return {
+      id: `${post.id}-${index}`,
+      src: image,
+      isMock,
+      mockClass: `mock-image ${mockType}`,
+      mockText: mockType ? mockType.slice(0, 1).toUpperCase() : "图"
+    };
+  });
 
   return Object.assign({}, post, {
     channelTitle: channel.title,
     avatar: String(post.author || "鱼").slice(0, 1),
     tags,
     images,
+    imageTiles,
     imageCount: images.length,
     comments,
     commentCount: comments.length,
@@ -162,7 +184,23 @@ function decoratePost(post) {
 function loadFishpondState() {
   const saved = wx.getStorageSync(STORAGE_KEY);
 
-  if (saved && saved.posts) return saved;
+  if (saved && saved.posts) {
+    return Object.assign({}, saved, {
+      posts: saved.posts.map((post) => {
+        if (Number(post.id) === 1001 && !(post.images || []).length) {
+          return Object.assign({}, post, { images: ["mock:cup"] });
+        }
+        if (Number(post.id) === 1002 && !(post.images || []).length) {
+          return Object.assign({}, post, { images: ["mock:desk", "mock:keyboard"] });
+        }
+        if (Number(post.id) === 1003 && !(post.images || []).length) {
+          return Object.assign({}, post, { images: ["mock:outfit", "mock:bag", "mock:shoes"] });
+        }
+
+        return post;
+      })
+    });
+  }
 
   return {
     posts: SEED_POSTS
@@ -254,6 +292,8 @@ function getMyComments() {
 
 function createPost(input) {
   const state = loadFishpondState();
+  const content = String(input.content || "").trim().slice(0, 200);
+  const autoTitle = content.split(/\n/)[0].slice(0, 24) || "今天的上班小动态";
   const tags = String(input.tagInput || "")
     .split(/[,，\s]+/)
     .map((tag) => tag.trim())
@@ -262,8 +302,8 @@ function createPost(input) {
   const post = {
     id: Date.now(),
     channel: input.channel || "cup",
-    title: String(input.title || "").trim().slice(0, 24),
-    content: String(input.content || "").trim().slice(0, 200),
+    title: String(input.title || "").trim().slice(0, 24) || autoTitle,
+    content,
     tags,
     images: (input.images || []).slice(0, 6),
     mood: input.mood || "还行",

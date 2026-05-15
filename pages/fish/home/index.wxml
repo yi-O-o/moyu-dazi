@@ -14,24 +14,6 @@
     <view class="publish-button" bindtap="togglePublish">{{publishOpen ? "收起" : "发动态"}}</view>
   </view>
 
-  <scroll-view class="channel-scroll" scroll-x="true" enable-flex="true">
-    <view class="channel-row">
-      <view
-        wx:for="{{channels}}"
-        wx:key="id"
-        class="{{item.className}}"
-        bindtap="switchChannel"
-        data-id="{{item.id}}"
-      >
-        <text>{{item.title}}</text>
-      </view>
-    </view>
-  </scroll-view>
-  <view class="channel-summary-row">
-    <text class="channel-desc">{{activeChannelDesc}}</text>
-    <view class="channel-detail-link" wx:if="{{activeChannelDetailVisible}}" bindtap="goChannelDetail">进频道</view>
-  </view>
-
   <view class="channel-board">
     <view class="section-head compact">
       <text class="section-title compact-title">频道小馆</text>
@@ -48,34 +30,40 @@
     </scroll-view>
   </view>
 
-  <view class="publish-panel" wx:if="{{publishOpen}}">
-    <text class="publish-title">发一条上班动态</text>
-    <view class="publish-channel-row">
-      <view
-        wx:for="{{publishChannels}}"
-        wx:key="id"
-        class="{{item.className}}"
-        bindtap="changePublishChannel"
-        data-id="{{item.id}}"
-      >
-        {{item.title}}
+  <view class="publish-modal" wx:if="{{publishOpen}}">
+    <view class="publish-mask" bindtap="closePublish"></view>
+    <view class="publish-sheet">
+      <view class="sheet-handle"></view>
+      <view class="publish-head">
+        <text class="publish-title">发一条上班动态</text>
+        <view class="publish-close" bindtap="closePublish">×</view>
       </view>
+      <text class="publish-selected">发到 {{selectedPublishChannelTitle}}</text>
+      <textarea class="moments-textarea" maxlength="200" placeholder="这一刻想发点什么？" value="{{form.content}}" bindinput="handleContentInput"></textarea>
+      <view class="image-picker moments-picker">
+        <view class="picked-image-wrap" wx:for="{{form.images}}" wx:for-item="image" wx:for-index="index" wx:key="*this">
+          <image class="picked-image" src="{{image}}" mode="aspectFill" bindtap="previewImage" data-src="{{image}}" data-urls="{{form.images}}"></image>
+          <view class="remove-image" catchtap="removePublishImage" data-index="{{index}}">×</view>
+        </view>
+        <view class="add-image" bindtap="chooseImages" wx:if="{{form.images.length < 6}}">
+          <text>＋</text>
+          <text>加图</text>
+        </view>
+      </view>
+      <view class="publish-channel-row">
+        <view
+          wx:for="{{publishChannels}}"
+          wx:key="id"
+          class="{{item.className}}"
+          bindtap="changePublishChannel"
+          data-id="{{item.id}}"
+        >
+          {{item.title}}
+        </view>
+      </view>
+      <text class="safe-tip">像朋友圈一样随手发就行。发工位图时记得遮挡屏幕、工牌和文件。</text>
+      <view class="submit-post" bindtap="publishPost">发到鱼塘</view>
     </view>
-    <input class="pond-input" maxlength="24" placeholder="标题，比如：今天靠这杯续命" value="{{form.title}}" bindinput="handleTitleInput" />
-    <textarea class="pond-textarea" maxlength="200" placeholder="随便写几句，轻一点就好" value="{{form.content}}" bindinput="handleContentInput"></textarea>
-    <input class="pond-input" maxlength="36" placeholder="标签，用空格隔开，比如 咖啡 续命 工位" value="{{form.tagInput}}" bindinput="handleTagInput" />
-    <view class="image-picker">
-      <view class="picked-image-wrap" wx:for="{{form.images}}" wx:for-item="image" wx:for-index="index" wx:key="*this">
-        <image class="picked-image" src="{{image}}" mode="aspectFill" bindtap="previewImage" data-src="{{image}}" data-urls="{{form.images}}"></image>
-        <view class="remove-image" catchtap="removePublishImage" data-index="{{index}}">×</view>
-      </view>
-      <view class="add-image" bindtap="chooseImages" wx:if="{{form.images.length < 6}}">
-        <text>＋</text>
-        <text>加图</text>
-      </view>
-    </view>
-    <text class="safe-tip">发工位图时记得遮挡屏幕、工牌、文件和公司敏感信息。</text>
-    <view class="submit-post" bindtap="publishPost">发到鱼塘</view>
   </view>
 
   <view class="post-list">
@@ -95,21 +83,23 @@
         <text class="post-more" catchtap="reportPost">···</text>
       </view>
 
-      <text class="post-title">{{post.title}}</text>
       <text class="post-content">{{post.content}}</text>
 
       <view class="post-images image-count-{{post.imageCount}}" wx:if="{{post.imageCount}}">
-        <image
-          class="post-image"
-          wx:for="{{post.images}}"
-          wx:for-item="image"
-          wx:key="*this"
-          src="{{image}}"
-          mode="aspectFill"
-          catchtap="previewImage"
-          data-src="{{image}}"
-          data-urls="{{post.images}}"
-        ></image>
+        <block wx:for="{{post.imageTiles}}" wx:for-item="image" wx:key="id">
+          <view class="{{image.mockClass}}" wx:if="{{image.isMock}}">
+            <text>{{image.mockText}}</text>
+          </view>
+          <image
+            wx:else
+            class="post-image"
+            src="{{image.src}}"
+            mode="aspectFill"
+            catchtap="previewImage"
+            data-src="{{image.src}}"
+            data-urls="{{post.images}}"
+          ></image>
+        </block>
       </view>
 
       <view class="tag-row" wx:if="{{post.tags.length}}">

@@ -8,20 +8,18 @@ const {
   togglePostReaction
 } = require("../../../utils/fishpond");
 
-function decorateChannels(activeChannel) {
-  return CHANNELS.map((channel) => {
-    return Object.assign({}, channel, {
-      className: channel.id === activeChannel ? "channel-chip active" : "channel-chip"
-    });
-  });
-}
-
 function getPublishChannels(selectedChannel) {
   return CHANNELS.filter((channel) => channel.id !== "all").map((channel) => {
     return Object.assign({}, channel, {
       className: channel.id === selectedChannel ? "publish-channel selected" : "publish-channel"
     });
   });
+}
+
+function getChannelTitle(channelId) {
+  const channel = CHANNELS.find((item) => item.id === channelId) || CHANNELS[1];
+
+  return channel.title;
 }
 
 function decorateVisiblePosts(posts, openCommentId) {
@@ -34,20 +32,15 @@ function decorateVisiblePosts(posts, openCommentId) {
 
 Page({
   data: {
-    channels: decorateChannels("all"),
     publishChannels: getPublishChannels("cup"),
     channelCards: listChannelSummaries(),
-    activeChannel: "all",
-    activeChannelDesc: CHANNELS[0].desc,
-    activeChannelDetailVisible: false,
     posts: listPosts("all"),
     game: buildGameSummary(loadGameState()),
     publishOpen: false,
+    selectedPublishChannelTitle: getChannelTitle("cup"),
     form: {
       channel: "cup",
-      title: "",
       content: "",
-      tagInput: "",
       mood: "还行",
       images: []
     },
@@ -65,30 +58,28 @@ Page({
   },
 
   refreshPosts() {
-    const channel = CHANNELS.find((item) => item.id === this.data.activeChannel) || CHANNELS[0];
-
     this.setData({
-      channels: decorateChannels(this.data.activeChannel),
-      activeChannelDesc: channel.desc,
-      activeChannelDetailVisible: channel.id !== "all",
       channelCards: listChannelSummaries(),
-      posts: decorateVisiblePosts(listPosts(this.data.activeChannel), this.data.commentPostId),
+      posts: decorateVisiblePosts(listPosts("all"), this.data.commentPostId),
       game: buildGameSummary(loadGameState())
     });
   },
 
-  switchChannel(event) {
-    const id = event.currentTarget.dataset.id;
-
+  openPublish() {
     this.setData({
-      activeChannel: id,
+      publishOpen: true,
+      commentPostId: null
+    });
+  },
+
+  closePublish() {
+    this.setData({
       publishOpen: false
     });
-    this.refreshPosts();
   },
 
   goChannelDetail(event) {
-    const id = event.currentTarget.dataset.id || this.data.activeChannel;
+    const id = event.currentTarget.dataset.id;
     if (!id || id === "all") return;
 
     wx.navigateTo({
@@ -97,10 +88,12 @@ Page({
   },
 
   togglePublish() {
-    this.setData({
-      publishOpen: !this.data.publishOpen,
-      commentPostId: null
-    });
+    if (this.data.publishOpen) {
+      this.closePublish();
+      return;
+    }
+
+    this.openPublish();
   },
 
   changePublishChannel(event) {
@@ -108,25 +101,14 @@ Page({
 
     this.setData({
       "form.channel": channel,
-      publishChannels: getPublishChannels(channel)
-    });
-  },
-
-  handleTitleInput(event) {
-    this.setData({
-      "form.title": event.detail.value
+      publishChannels: getPublishChannels(channel),
+      selectedPublishChannelTitle: getChannelTitle(channel)
     });
   },
 
   handleContentInput(event) {
     this.setData({
       "form.content": event.detail.value
-    });
-  },
-
-  handleTagInput(event) {
-    this.setData({
-      "form.tagInput": event.detail.value
     });
   },
 
@@ -177,9 +159,9 @@ Page({
   publishPost() {
     const form = this.data.form;
 
-    if (!form.title.trim() || !form.content.trim()) {
+    if (!form.content.trim() && !(form.images || []).length) {
       wx.showToast({
-        title: "标题和内容都写一点",
+        title: "写一句话或加一张图",
         icon: "none",
         duration: 1200
       });
@@ -191,14 +173,11 @@ Page({
 
     this.setData({
       publishOpen: false,
-      activeChannel: form.channel,
-      channels: decorateChannels(form.channel),
       publishChannels: getPublishChannels("cup"),
+      selectedPublishChannelTitle: getChannelTitle("cup"),
       form: {
         channel: "cup",
-        title: "",
         content: "",
-        tagInput: "",
         mood: "还行",
         images: []
       }

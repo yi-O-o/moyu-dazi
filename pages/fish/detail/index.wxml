@@ -18,16 +18,19 @@
     <text class="detail-content">{{post.content}}</text>
 
     <view class="detail-images image-count-{{post.imageCount}}" wx:if="{{post.imageCount}}">
-      <image
-        class="detail-image"
-        wx:for="{{post.images}}"
-        wx:for-item="image"
-        wx:key="*this"
-        src="{{image}}"
-        mode="aspectFill"
-        bindtap="previewImage"
-        data-src="{{image}}"
-      ></image>
+      <block wx:for="{{post.imageTiles}}" wx:for-item="image" wx:key="id">
+        <view class="{{image.mockClass}}" wx:if="{{image.isMock}}">
+          <text>{{image.mockText}}</text>
+        </view>
+        <image
+          wx:else
+          class="detail-image"
+          src="{{image.src}}"
+          mode="aspectFill"
+          bindtap="previewImage"
+          data-src="{{image.src}}"
+        ></image>
+      </block>
     </view>
 
     <view class="tag-row" wx:if="{{post.tags.length}}">

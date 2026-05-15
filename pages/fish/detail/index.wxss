@@ -87,15 +87,41 @@
   grid-template-columns: 1fr;
 }
 
-.detail-image {
+.detail-image,
+.mock-image {
   width: 100%;
   height: 190rpx;
   border-radius: 8rpx;
   background: #f2e4d6;
 }
 
-.image-count-1 .detail-image {
-  height: 420rpx;
+.mock-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 52rpx;
+  font-weight: 900;
+}
+
+.mock-image.cup {
+  background: linear-gradient(135deg, #d9b28c 0%, #6f4d3b 100%);
+}
+
+.mock-image.desk,
+.mock-image.keyboard {
+  background: linear-gradient(135deg, #dfe9bf 0%, #3f6f64 100%);
+}
+
+.mock-image.outfit,
+.mock-image.bag,
+.mock-image.shoes {
+  background: linear-gradient(135deg, #f3caa6 0%, #8c5a3d 100%);
+}
+
+.image-count-1 .detail-image,
+.image-count-1 .mock-image {
+  height: 360rpx;
 }
 
 .tag-row {
