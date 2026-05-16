@@ -39,6 +39,14 @@ function buildActions(summary) {
   ];
 }
 
+function getWindowMetrics() {
+  if (wx.getWindowInfo) {
+    return wx.getWindowInfo();
+  }
+
+  return wx.getSystemInfoSync();
+}
+
 Page({
   data: {
     actionClass: "idle",
@@ -76,7 +84,7 @@ Page({
   },
 
   initPetPosition() {
-    const systemInfo = wx.getSystemInfoSync();
+    const systemInfo = getWindowMetrics();
     const scale = systemInfo.windowWidth / 750;
     const petWidth = 260 * scale;
 
@@ -177,7 +185,7 @@ Page({
   },
 
   updateDragBounds() {
-    const systemInfo = wx.getSystemInfoSync();
+    const systemInfo = getWindowMetrics();
     const scale = systemInfo.windowWidth / 750;
 
     this.getStageRect((stageRect) => {

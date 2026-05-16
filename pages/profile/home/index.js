@@ -1,4 +1,5 @@
 const { getWorkStats, loadWorkConfig } = require("../../../utils/workday");
+const cloudApi = require("../../../utils/cloudApi");
 const {
   deletePost,
   getMyComments,
@@ -63,6 +64,36 @@ Page({
       myComments: getMyComments(),
       myFavorites: getMyFavorites()
     });
+    this.refreshCloudProfile();
+  },
+
+  refreshCloudProfile() {
+    cloudApi.getPointSummary().then((res) => {
+      if (!res.user) return;
+
+      this.setData({
+        game: Object.assign({}, this.data.game, {
+          points: res.user.points,
+          level: res.user.level
+        })
+      });
+    }).catch(() => {
+    });
+
+    cloudApi.getMyMeetups({ filter: this.data.meetupTab }).then((res) => {
+      this.setData({
+        myMeetups: res.meetups || []
+      });
+    }).catch(() => {
+    });
+
+    cloudApi.getMyFish().then((res) => {
+      this.setData({
+        myPosts: res.posts || [],
+        myFavorites: res.favorites || []
+      });
+    }).catch(() => {
+    });
   },
 
   switchPondTab(event) {
@@ -81,6 +112,12 @@ Page({
       meetupTab: tab,
       meetupTabs: decorateMeetupTabs(tab),
       myMeetups: getMyMeetups(tab)
+    });
+    cloudApi.getMyMeetups({ filter: tab }).then((res) => {
+      this.setData({
+        myMeetups: res.meetups || []
+      });
+    }).catch(() => {
     });
   },
 
@@ -103,6 +140,8 @@ Page({
         if (!res.confirm) return;
 
         const result = deletePost(id);
+        cloudApi.deleteFishPost({ id }).catch(() => {
+        });
         this.setData({
           myPosts: getMyPosts(),
           myComments: getMyComments(),
@@ -136,6 +175,8 @@ Page({
         if (!res.confirm) return;
 
         const result = cancelMeetup(id);
+        cloudApi.cancelMeetup({ id }).catch(() => {
+        });
         this.setData({
           myMeetups: getMyMeetups(this.data.meetupTab)
         });

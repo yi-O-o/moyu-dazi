@@ -1,4 +1,5 @@
 const { addPoints } = require("../../../utils/gamification");
+const cloudApi = require("../../../utils/cloudApi");
 const {
   addComment,
   deletePost,
@@ -27,7 +28,7 @@ Page({
 
   onLoad(options) {
     this.setData({
-      postId: Number(options.id)
+      postId: options.id
     });
     this.refreshPost();
   },
@@ -41,6 +42,12 @@ Page({
 
     this.setData({
       post: getPost(this.data.postId)
+    });
+    cloudApi.getFishPost({ id: this.data.postId }).then((res) => {
+      this.setData({
+        post: res.post
+      });
+    }).catch(() => {
     });
   },
 
@@ -63,6 +70,8 @@ Page({
     const type = event.currentTarget.dataset.type;
 
     togglePostReaction(this.data.postId, type);
+    cloudApi.toggleFishReaction({ id: this.data.postId, type }).catch(() => {
+    });
     this.refreshPost();
 
     wx.showToast({
@@ -79,9 +88,9 @@ Page({
   },
 
   submitComment() {
-    const comment = addComment(this.data.postId, this.data.commentInput);
+    const text = this.data.commentInput;
 
-    if (!comment) {
+    if (!String(text || "").trim()) {
       wx.showToast({
         title: "先写一句评论",
         icon: "none",
@@ -90,17 +99,28 @@ Page({
       return;
     }
 
+    addComment(this.data.postId, text);
     const pointResult = addPoints("pond_comment", 1, { dailyLimit: 5 });
 
     this.setData({
       commentInput: ""
     });
-    this.refreshPost();
-    this.playPointFeedback(pointResult, "评论");
-    wx.showToast({
-      title: pointResult.added > 0 ? "评论 +1" : "评论成功",
-      icon: "none",
-      duration: 1000
+    cloudApi.addFishComment({ id: this.data.postId, content: text }).then(() => {
+      this.refreshPost();
+      this.playPointFeedback(pointResult, "评论");
+      wx.showToast({
+        title: pointResult.added > 0 ? "评论 +1" : "评论成功",
+        icon: "none",
+        duration: 1000
+      });
+    }).catch(() => {
+      this.refreshPost();
+      this.playPointFeedback(pointResult, "评论");
+      wx.showToast({
+        title: pointResult.added > 0 ? "评论 +1" : "评论成功",
+        icon: "none",
+        duration: 1000
+      });
     });
   },
 
@@ -114,6 +134,8 @@ Page({
         if (!res.confirm) return;
 
         hideReportedPost(this.data.postId);
+        cloudApi.reportFishPost({ id: this.data.postId }).catch(() => {
+        });
         this.refreshPost();
         wx.showToast({
           title: "已隐藏这条动态",
@@ -134,13 +156,15 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        const result = deletePost(this.data.postId);
+        const localResult = deletePost(this.data.postId);
+        cloudApi.deleteFishPost({ id: this.data.postId }).catch(() => {
+        });
         wx.showToast({
-          title: result === "success" ? "已删除" : "没找到这条动态",
+          title: localResult === "success" || this.data.post && this.data.post.isMine ? "已删除" : "没找到这条动态",
           icon: "none",
           duration: 900
         });
-        if (result === "success") {
+        if (localResult === "success" || this.data.post && this.data.post.isMine) {
           setTimeout(() => {
             wx.navigateBack({
               delta: 1,

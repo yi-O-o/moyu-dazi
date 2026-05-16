@@ -1,4 +1,5 @@
 const { addPoints } = require("../../../utils/gamification");
+const cloudApi = require("../../../utils/cloudApi");
 const {
   addMeetupComment,
   cancelMeetup: cancelMeetupById,
@@ -16,7 +17,7 @@ Page({
 
   onLoad(options) {
     this.setData({
-      meetupId: Number(options.id)
+      meetupId: options.id
     });
     this.refreshMeetup();
   },
@@ -35,29 +36,51 @@ Page({
     this.setData({
       meetup: getMeetup(this.data.meetupId)
     });
+    cloudApi.getMeetup({ id: this.data.meetupId }).then((res) => {
+      this.setData({
+        meetup: res.meetup
+      });
+    }).catch(() => {
+    });
   },
 
   joinMeetup() {
     const result = joinMeetup(this.data.meetupId);
     this.refreshMeetup();
 
-    if (result === "success") {
-      const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
-      this.showPointToast(pointResult, "报名约局");
-      this.showJoinReminder();
-      return;
-    }
+    cloudApi.joinMeetup({ id: this.data.meetupId }).then((res) => {
+      this.refreshMeetup();
+      if (res.result === "success") {
+        const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
+        this.showPointToast(pointResult, "报名约局");
+        this.showJoinReminder();
+        return;
+      }
 
-    const messageMap = {
-      joined: "你已经报名啦",
-      full: "这个局满员了",
-      missing: "这个局暂时找不到了"
-    };
+      wx.showToast({
+        title: res.result === "joined" ? "你已经报名啦" : res.result === "full" ? "这个局满员了" : "报名失败了",
+        icon: "none",
+        duration: 1200
+      });
+    }).catch(() => {
+      if (result === "success") {
+        const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
+        this.showPointToast(pointResult, "报名约局");
+        this.showJoinReminder();
+        return;
+      }
 
-    wx.showToast({
-      title: messageMap[result] || "报名失败了",
-      icon: "none",
-      duration: 1200
+      const messageMap = {
+        joined: "你已经报名啦",
+        full: "这个局满员了",
+        missing: "这个局暂时找不到了"
+      };
+
+      wx.showToast({
+        title: messageMap[result] || "报名失败了",
+        icon: "none",
+        duration: 1200
+      });
     });
   },
 
@@ -71,12 +94,21 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        const result = cancelMeetupById(this.data.meetupId);
-        this.refreshMeetup();
-        wx.showToast({
-          title: result === "success" ? "已取消报名" : "暂时不能取消",
-          icon: "none",
-          duration: 1000
+        const localResult = cancelMeetupById(this.data.meetupId);
+        cloudApi.cancelMeetup({ id: this.data.meetupId }).then(() => {
+          this.refreshMeetup();
+          wx.showToast({
+            title: "已取消报名",
+            icon: "none",
+            duration: 1000
+          });
+        }).catch(() => {
+          this.refreshMeetup();
+          wx.showToast({
+            title: localResult === "success" ? "已取消报名" : "暂时不能取消",
+            icon: "none",
+            duration: 1000
+          });
         });
       }
     });
@@ -89,20 +121,12 @@ Page({
   },
 
   submitComment() {
-    const result = addMeetupComment(this.data.meetupId, this.data.commentInput);
+    const text = this.data.commentInput;
+    const result = addMeetupComment(this.data.meetupId, text);
 
-    if (result.result === "empty") {
+    if (!String(text || "").trim() || result.result === "empty") {
       wx.showToast({
         title: "先写一句评论",
-        icon: "none",
-        duration: 1000
-      });
-      return;
-    }
-
-    if (result.result !== "success") {
-      wx.showToast({
-        title: "这个局暂时找不到了",
         icon: "none",
         duration: 1000
       });
@@ -114,8 +138,22 @@ Page({
     this.setData({
       commentInput: ""
     });
-    this.refreshMeetup();
-    this.showPointToast(pointResult, "评论约局");
+    cloudApi.addMeetupComment({ id: this.data.meetupId, text }).then(() => {
+      this.refreshMeetup();
+      this.showPointToast(pointResult, "评论约局");
+    }).catch(() => {
+      if (result.result !== "success") {
+        wx.showToast({
+          title: "这个局暂时找不到了",
+          icon: "none",
+          duration: 1000
+        });
+        return;
+      }
+
+      this.refreshMeetup();
+      this.showPointToast(pointResult, "评论约局");
+    });
   },
 
   showJoinReminder() {

@@ -46,10 +46,12 @@
     }
   },
   "compileType": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions/",
   "libVersion": "latest",
-  "appid": "wxad4740e544e520a1",
+  "appid": "wxacf0556c4fcae4ab",
   "projectname": "ai-tools-mini-program",
   "condition": {},
   "simulatorPluginLibVersion": {},
-  "editorSetting": {}
+  "editorSetting": {},
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }

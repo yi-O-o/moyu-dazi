@@ -1,3 +1,4 @@
+const cloudApi = require("../../../utils/cloudApi");
 const {
   getChannelSummary,
   listPosts
@@ -27,6 +28,12 @@ Page({
     this.setData({
       channel: getChannelSummary(channelId),
       posts: listPosts(channelId)
+    });
+    cloudApi.listFishPosts({ channel: channelId }).then((res) => {
+      this.setData({
+        posts: res.posts || []
+      });
+    }).catch(() => {
     });
   },
 

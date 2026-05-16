@@ -573,7 +573,7 @@
 
 .post-actions {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(96rpx, 1fr));
   gap: 10rpx;
   margin-top: 20rpx;
 }
@@ -593,6 +593,11 @@
 .post-action.active {
   background: #fff0dc;
   color: #b65f2a;
+}
+
+.post-action.danger {
+  background: #fff1ed;
+  color: #a4472a;
 }
 
 .comment-list {

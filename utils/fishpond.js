@@ -59,72 +59,7 @@ const CHANNELS = [
   }
 ];
 
-const SEED_POSTS = [
-  {
-    id: 1001,
-    channel: "cup",
-    title: "今天靠这杯冰美式续命",
-    content: "杯子不大，但装得下我上午所有的怨气。",
-    tags: ["咖啡", "续命", "杯子"],
-    mood: "还行",
-    images: [
-      "mock:cup"
-    ],
-    author: "早八打工人",
-    createdAt: "09:35",
-    likeCount: 12,
-    favoriteCount: 3,
-    sameCount: 5,
-    liked: false,
-    favorited: false,
-    comments: [
-      { id: 1, author: "工位小搭子", content: "这句杯子不大太真实了。" }
-    ]
-  },
-  {
-    id: 1002,
-    channel: "desk",
-    title: "工位角落终于收拾出来了",
-    content: "屏幕已打码，桌面干净到像刚入职。",
-    tags: ["桌搭", "收纳", "工位"],
-    mood: "清爽",
-    images: [
-      "mock:desk",
-      "mock:keyboard"
-    ],
-    author: "桌面整理员",
-    createdAt: "10:12",
-    likeCount: 18,
-    favoriteCount: 7,
-    sameCount: 4,
-    liked: false,
-    favorited: false,
-    comments: []
-  },
-  {
-    id: 1003,
-    channel: "outfit",
-    title: "穿得像要开会，其实只想下班",
-    content: "舒适第一，正式第二，灵魂已经在等下班。",
-    tags: ["通勤", "舒适", "穿搭"],
-    mood: "想下班",
-    images: [
-      "mock:outfit",
-      "mock:bag",
-      "mock:shoes"
-    ],
-    author: "通勤衣柜",
-    createdAt: "11:05",
-    likeCount: 9,
-    favoriteCount: 2,
-    sameCount: 6,
-    liked: false,
-    favorited: false,
-    comments: [
-      { id: 1, author: "今天也上班", content: "这不就是我的每日状态。" }
-    ]
-  }
-];
+const SEED_POST_IDS = [1001, 1002, 1003];
 
 function getChannel(id) {
   return CHANNELS.find((channel) => channel.id === id) || CHANNELS[0];
@@ -195,29 +130,30 @@ function decoratePost(post) {
   });
 }
 
+function isSeedPost(post) {
+  return SEED_POST_IDS.indexOf(Number(post.id)) !== -1;
+}
+
+function removeSeedPosts(posts) {
+  return (posts || []).filter((post) => !isSeedPost(post));
+}
+
 function loadFishpondState() {
   const saved = wx.getStorageSync(STORAGE_KEY);
 
   if (saved && saved.posts) {
-    return Object.assign({}, saved, {
-      posts: saved.posts.map((post) => {
-        if (Number(post.id) === 1001 && !(post.images || []).length) {
-          return Object.assign({}, post, { images: ["mock:cup"] });
-        }
-        if (Number(post.id) === 1002 && !(post.images || []).length) {
-          return Object.assign({}, post, { images: ["mock:desk", "mock:keyboard"] });
-        }
-        if (Number(post.id) === 1003 && !(post.images || []).length) {
-          return Object.assign({}, post, { images: ["mock:outfit", "mock:bag", "mock:shoes"] });
-        }
+    const posts = removeSeedPosts(saved.posts);
+    const cleaned = Object.assign({}, saved, { posts });
 
-        return post;
-      })
-    });
+    if (posts.length !== saved.posts.length) {
+      saveFishpondState(cleaned);
+    }
+
+    return cleaned;
   }
 
   return {
-    posts: SEED_POSTS
+    posts: []
   };
 }
 

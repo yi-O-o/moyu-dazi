@@ -128,6 +128,7 @@
         <view class="post-action" catchtap="openComment" data-id="{{post.id}}">评论 {{post.commentCount}}</view>
         <view class="post-action {{post.favorited ? 'active' : ''}}" catchtap="reactPost" data-id="{{post.id}}" data-type="favorite">{{post.favoriteText}} {{post.favoriteCount}}</view>
         <view class="post-action" catchtap="reactPost" data-id="{{post.id}}" data-type="same">同款 {{post.sameCount}}</view>
+        <view class="post-action danger" wx:if="{{post.canDelete}}" catchtap="deleteMyPost" data-id="{{post.id}}">删除</view>
       </view>
 
       <view class="comment-list" wx:if="{{post.latestComments.length}}">

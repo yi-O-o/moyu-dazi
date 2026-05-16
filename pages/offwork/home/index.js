@@ -1,4 +1,5 @@
 const { addPoints } = require("../../../utils/gamification");
+const cloudApi = require("../../../utils/cloudApi");
 const {
   TYPES,
   addMeetupComment,
@@ -59,6 +60,26 @@ Page({
       meetups,
       hasMeetups: meetups.length > 0,
       emptyVisible: meetups.length === 0
+    });
+    this.refreshCloudMeetups();
+  },
+
+  refreshCloudMeetups() {
+    cloudApi.listMeetups({ type: this.data.activeType }).then((res) => {
+      const meetups = (res.meetups || []).map((meetup) => {
+        return Object.assign({}, meetup, {
+          commentDraft: this.data.commentInputs[meetup.id] || ""
+        });
+      });
+
+      if (!meetups.length && this.data.meetups.length) return;
+
+      this.setData({
+        meetups,
+        hasMeetups: meetups.length > 0,
+        emptyVisible: meetups.length === 0
+      });
+    }).catch(() => {
     });
   },
 
@@ -148,7 +169,6 @@ Page({
       return;
     }
 
-    createMeetup(form);
     const pointResult = addPoints("meetup_publish", 3, { dailyLimit: 3 });
 
     this.setData({
@@ -165,8 +185,14 @@ Page({
         desc: ""
       }
     });
-    this.refreshMeetups();
-    this.showPointToast(pointResult, "发布约局");
+    cloudApi.createMeetup(form).then(() => {
+      this.refreshCloudMeetups();
+      this.showPointToast(pointResult, "发布约局");
+    }).catch(() => {
+      createMeetup(form);
+      this.refreshMeetups();
+      this.showPointToast(pointResult, "发布约局");
+    });
   },
 
   joinMeetup(event) {
@@ -175,23 +201,39 @@ Page({
 
     this.refreshMeetups();
 
-    if (result === "success") {
-      const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
-      this.showPointToast(pointResult, "报名约局");
-      this.showJoinReminder();
-      return;
-    }
+    cloudApi.joinMeetup({ id }).then((res) => {
+      this.refreshCloudMeetups();
+      if (res.result === "success") {
+        const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
+        this.showPointToast(pointResult, "报名约局");
+        this.showJoinReminder();
+        return;
+      }
 
-    const messageMap = {
-      joined: "你已经报名啦",
-      full: "这个局满员了",
-      missing: "这个局暂时找不到了"
-    };
+      wx.showToast({
+        title: res.result === "joined" ? "你已经报名啦" : res.result === "full" ? "这个局满员了" : "报名失败了",
+        icon: "none",
+        duration: 1200
+      });
+    }).catch(() => {
+      if (result === "success") {
+        const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
+        this.showPointToast(pointResult, "报名约局");
+        this.showJoinReminder();
+        return;
+      }
 
-    wx.showToast({
-      title: messageMap[result] || "报名失败了",
-      icon: "none",
-      duration: 1200
+      const messageMap = {
+        joined: "你已经报名啦",
+        full: "这个局满员了",
+        missing: "这个局暂时找不到了"
+      };
+
+      wx.showToast({
+        title: messageMap[result] || "报名失败了",
+        icon: "none",
+        duration: 1200
+      });
     });
   },
 
@@ -207,12 +249,21 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        const result = cancelMeetupById(id);
-        this.refreshMeetups();
-        wx.showToast({
-          title: result === "success" ? "已取消报名" : "暂时不能取消",
-          icon: "none",
-          duration: 1000
+        const localResult = cancelMeetupById(id);
+        cloudApi.cancelMeetup({ id }).then(() => {
+          this.refreshCloudMeetups();
+          wx.showToast({
+            title: "已取消报名",
+            icon: "none",
+            duration: 1000
+          });
+        }).catch(() => {
+          this.refreshMeetups();
+          wx.showToast({
+            title: localResult === "success" ? "已取消报名" : "暂时不能取消",
+            icon: "none",
+            duration: 1000
+          });
         });
       }
     });
@@ -229,18 +280,9 @@ Page({
     const text = this.data.commentInputs[id] || "";
     const result = addMeetupComment(id, text);
 
-    if (result.result === "empty") {
+    if (!String(text || "").trim() || result.result === "empty") {
       wx.showToast({
         title: "先写一句评论",
-        icon: "none",
-        duration: 1000
-      });
-      return;
-    }
-
-    if (result.result !== "success") {
-      wx.showToast({
-        title: "这个局暂时找不到了",
         icon: "none",
         duration: 1000
       });
@@ -252,8 +294,22 @@ Page({
     this.setData({
       [`commentInputs.${id}`]: ""
     });
-    this.refreshMeetups();
-    this.showPointToast(pointResult, "评论约局");
+    cloudApi.addMeetupComment({ id, text }).then(() => {
+      this.refreshCloudMeetups();
+      this.showPointToast(pointResult, "评论约局");
+    }).catch(() => {
+      if (result.result !== "success") {
+        wx.showToast({
+          title: "这个局暂时找不到了",
+          icon: "none",
+          duration: 1000
+        });
+        return;
+      }
+
+      this.refreshMeetups();
+      this.showPointToast(pointResult, "评论约局");
+    });
   },
 
   showJoinReminder() {

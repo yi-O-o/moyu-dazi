@@ -72,6 +72,14 @@ function guessMeetupType(text) {
   return "food";
 }
 
+function getWindowMetrics() {
+  if (wx.getWindowInfo) {
+    return wx.getWindowInfo();
+  }
+
+  return wx.getSystemInfoSync();
+}
+
 Page({
   data: {
     config: DEFAULT_WORK_CONFIG,
@@ -198,7 +206,7 @@ Page({
   },
 
   initHomePetPosition() {
-    const systemInfo = wx.getSystemInfoSync();
+    const systemInfo = getWindowMetrics();
     const scale = systemInfo.windowWidth / 750;
     const petWidth = 166 * scale;
 
@@ -406,7 +414,7 @@ Page({
     const touch = event.touches[0];
     if (!touch) return;
 
-    const systemInfo = wx.getSystemInfoSync();
+    const systemInfo = getWindowMetrics();
     const scale = systemInfo.windowWidth / 750;
     this.setHomePetBounds(systemInfo, scale);
     this.homePetDragStart = {
