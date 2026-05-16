@@ -2,6 +2,7 @@ const { addPoints } = require("../../../utils/gamification");
 const {
   TYPES,
   addMeetupComment,
+  cancelMeetup: cancelMeetupById,
   createMeetup,
   decorateType,
   joinMeetup: joinMeetupById,
@@ -191,6 +192,29 @@ Page({
       title: messageMap[result] || "报名失败了",
       icon: "none",
       duration: 1200
+    });
+  },
+
+  cancelMeetup(event) {
+    const id = event.currentTarget.dataset.id;
+
+    wx.showModal({
+      title: "取消报名？",
+      content: "取消后如果还想去，需要重新报名。",
+      confirmText: "取消报名",
+      confirmColor: "#B65F2A",
+      cancelText: "先不",
+      success: (res) => {
+        if (!res.confirm) return;
+
+        const result = cancelMeetupById(id);
+        this.refreshMeetups();
+        wx.showToast({
+          title: result === "success" ? "已取消报名" : "暂时不能取消",
+          icon: "none",
+          duration: 1000
+        });
+      }
     });
   },
 

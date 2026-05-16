@@ -16,10 +16,10 @@
 
   <view class="section-title">宠物状态</view>
   <view class="panel pet-status">
-    <view class="pet-badge">Lv.3</view>
+    <view class="pet-badge">Lv.{{game.level.level}}</view>
     <view>
       <text class="pet-name">工位小搭子</text>
-      <text class="pet-info">亲密度 68%，今天已经陪你慢慢坚持了 ¥{{todayEarned}}</text>
+      <text class="pet-info">{{game.level.title}} · {{game.points}} 分，今天已经陪你慢慢坚持了 ¥{{todayEarned}}</text>
     </view>
   </view>
 
@@ -32,6 +32,11 @@
   </view>
 
   <view class="section-title">我的约局</view>
+  <view class="meetup-tabs">
+    <view class="{{item.className}}" wx:for="{{meetupTabs}}" wx:key="id" bindtap="switchMeetupTab" data-id="{{item.id}}">
+      {{item.title}}
+    </view>
+  </view>
   <view class="panel booking" wx:if="{{!myMeetups.length}}">
     <text class="booking-title">今晚暂无固定安排</text>
     <text class="booking-desc">可以去下班页看看球局、娱乐麻将或今天吃什么。</text>
@@ -42,7 +47,10 @@
         <text class="meetup-mini-title">{{item.title}}</text>
         <text class="meetup-mini-meta">{{item.typeTitle}} · {{item.time}} · {{item.location}}</text>
       </view>
-      <text class="meetup-mini-status">{{item.author === "我" ? "我发起" : "已报名"}}</text>
+      <view class="meetup-mini-actions">
+        <text class="meetup-mini-cancel" wx:if="{{item.cancelVisible}}" catchtap="cancelMyMeetup" data-id="{{item.id}}">取消</text>
+        <text class="meetup-mini-status">{{item.myRoleText}}</text>
+      </view>
     </view>
   </view>
 
@@ -76,7 +84,10 @@
           <text class="pond-item-title">{{item.title}}</text>
           <text class="pond-item-meta">{{item.channelTitle}} · {{item.createdAt}} · 评论 {{item.commentCount}}</text>
         </view>
-        <text class="pond-item-arrow">›</text>
+        <view class="pond-item-actions">
+          <text class="pond-delete" catchtap="deleteMyPost" data-id="{{item.id}}">删除</text>
+          <text class="pond-item-arrow">›</text>
+        </view>
       </view>
     </view>
 

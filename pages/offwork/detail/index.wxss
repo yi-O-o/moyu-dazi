@@ -125,6 +125,30 @@
   font-weight: 800;
 }
 
+.detail-action-row {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 22rpx;
+}
+
+.detail-action-row .join-button {
+  flex: 1;
+  margin-top: 0;
+}
+
+.cancel-button {
+  flex: 0 0 172rpx;
+  height: 76rpx;
+  border-radius: 8rpx;
+  color: #7d6252;
+  background: rgba(255, 255, 255, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 800;
+}
+
 .join-button.joined {
   color: #627a35;
   background: #dfe9bf;

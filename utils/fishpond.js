@@ -358,6 +358,20 @@ function createPost(input) {
   return post;
 }
 
+function deletePost(postId) {
+  const state = loadFishpondState();
+  const targetId = Number(postId);
+  const beforeCount = (state.posts || []).length;
+
+  state.posts = (state.posts || []).filter((post) => {
+    return !(Number(post.id) === targetId && post.author === "我");
+  });
+
+  saveFishpondState(state);
+
+  return state.posts.length < beforeCount ? "success" : "missing";
+}
+
 function togglePostReaction(postId, type) {
   const state = loadFishpondState();
   const targetId = Number(postId);
@@ -443,6 +457,7 @@ module.exports = {
   CHANNELS,
   addComment,
   createPost,
+  deletePost,
   getChannel,
   getChannelSummary,
   getFishpondHighlights,

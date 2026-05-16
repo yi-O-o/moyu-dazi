@@ -22,7 +22,10 @@
         <text class="post-content">{{item.content}}</text>
         <text class="post-meta">{{item.channelTitle}} · {{item.createdAt}} · 评论 {{item.commentCount}}</text>
       </view>
-      <text class="post-arrow">›</text>
+      <view class="post-actions">
+        <text class="post-delete" wx:if="{{isMine}}" catchtap="deleteMyPost" data-id="{{item.id}}">删除</text>
+        <text class="post-arrow">›</text>
+      </view>
     </view>
   </view>
   <view class="panel empty-panel" wx:else>

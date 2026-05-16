@@ -17,7 +17,10 @@
       <text>{{meetup.joined}}/{{meetup.size}} 人</text>
     </view>
     <text class="meetup-author">由 {{meetup.author}} 发起 · {{meetup.createdAt}}</text>
-    <view class="{{meetup.joinButtonClass}}" bindtap="joinMeetup">{{meetup.joinText}}</view>
+    <view class="detail-action-row">
+      <view class="{{meetup.joinButtonClass}}" bindtap="joinMeetup">{{meetup.joinText}}</view>
+      <view class="cancel-button" wx:if="{{meetup.cancelVisible}}" bindtap="cancelMeetup">取消报名</view>
+    </view>
   </view>
 
   <view class="safe-panel">

@@ -431,6 +431,7 @@
 }
 
 .join-button,
+.cancel-button,
 .detail-button {
   flex: 0 0 auto;
   min-width: 132rpx;
@@ -445,6 +446,12 @@
   background: #b65f2a;
   font-size: 25rpx;
   font-weight: 800;
+}
+
+.cancel-button {
+  min-width: 104rpx;
+  color: #7d6252;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .detail-button {

@@ -175,6 +175,33 @@
   border-color: #f3caa6;
 }
 
+.meetup-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.meetup-tab {
+  height: 62rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 253, 249, 0.96);
+  border: 2rpx solid rgba(234, 217, 201, 0.82);
+  color: #7d6252;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.meetup-tab.active {
+  color: #ffffff;
+  background: #3f6f64;
+  border-color: #3f6f64;
+}
+
 .meetup-list-mini {
   overflow: hidden;
   border: 2rpx solid rgba(234, 217, 201, 0.82);
@@ -219,6 +246,22 @@
   border-radius: 8rpx;
   color: #b65f2a;
   background: #fff0dc;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.meetup-mini-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.meetup-mini-cancel {
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  color: #7d6252;
+  background: #fff7ec;
   font-size: 22rpx;
   font-weight: 800;
 }
@@ -317,6 +360,22 @@
   flex: 0 0 auto;
   color: #b9a69a;
   font-size: 42rpx;
+}
+
+.pond-item-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.pond-delete {
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  color: #b65f2a;
+  background: #fff0dc;
+  font-size: 22rpx;
+  font-weight: 800;
 }
 
 .badge-grid {

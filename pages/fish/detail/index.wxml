@@ -11,6 +11,7 @@
         <text class="post-author">{{post.author}}</text>
         <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>
       </view>
+      <text class="post-delete" wx:if="{{post.author === '我'}}" bindtap="deleteMyPost">删除</text>
       <text class="post-more" bindtap="reportPost">···</text>
     </view>
 

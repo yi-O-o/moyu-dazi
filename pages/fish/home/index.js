@@ -197,7 +197,7 @@ Page({
       }
     });
     this.refreshPosts();
-    this.showPointToast(pointResult, "发到鱼塘");
+    this.showPointToast(pointResult, "发布动态");
   },
 
   reactPost(event) {

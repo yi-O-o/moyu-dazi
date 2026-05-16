@@ -76,6 +76,9 @@
         <view class="{{item.joinButtonClass}}" bindtap="joinMeetup" data-id="{{item.id}}">
           {{item.joinText}}
         </view>
+        <view class="cancel-button" wx:if="{{item.cancelVisible}}" bindtap="cancelMeetup" data-id="{{item.id}}">
+          取消
+        </view>
       </view>
       <view class="meetup-comments">
         <view class="comment-head">

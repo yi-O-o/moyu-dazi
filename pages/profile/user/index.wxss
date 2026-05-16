@@ -131,6 +131,22 @@
   font-size: 42rpx;
 }
 
+.post-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.post-delete {
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  color: #b65f2a;
+  background: #fff0dc;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
 .empty-panel {
   text-align: center;
 }

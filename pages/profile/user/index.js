@@ -1,4 +1,4 @@
-const { getPostsByAuthor } = require("../../../utils/fishpond");
+const { deletePost, getPostsByAuthor } = require("../../../utils/fishpond");
 const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
 
 const PUBLIC_SIGNS = [
@@ -77,6 +77,29 @@ Page({
   goPostDetail(event) {
     wx.navigateTo({
       url: `/pages/fish/detail/index?id=${event.currentTarget.dataset.id}`
+    });
+  },
+
+  deleteMyPost(event) {
+    const id = event.currentTarget.dataset.id;
+
+    wx.showModal({
+      title: "删除这条动态？",
+      content: "删除后会从鱼塘和你的个人主页里移除。",
+      confirmText: "删除",
+      confirmColor: "#B65F2A",
+      cancelText: "算了",
+      success: (res) => {
+        if (!res.confirm) return;
+
+        const result = deletePost(id);
+        this.refreshProfile(this.data.author);
+        wx.showToast({
+          title: result === "success" ? "已删除" : "没找到这条动态",
+          icon: "none",
+          duration: 1000
+        });
+      }
     });
   },
 

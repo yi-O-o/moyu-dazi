@@ -73,6 +73,7 @@ function decorateType(activeType) {
 function decorateMeetup(meetup) {
   const type = getType(meetup.type);
   const remain = Math.max(0, meetup.size - meetup.joined);
+  const canCancel = meetup.joinedByMe && meetup.author !== "我";
 
   return Object.assign({}, meetup, {
     typeTitle: type.title,
@@ -80,6 +81,8 @@ function decorateMeetup(meetup) {
     statusText: remain > 0 ? `还缺 ${remain} 人` : "已满员",
     joinText: meetup.joinedByMe ? "已报名" : remain > 0 ? "我想去" : "满员了",
     joinButtonClass: meetup.joinedByMe ? "join-button joined" : "join-button",
+    cancelVisible: canCancel,
+    myRoleText: meetup.author === "我" ? "我发起" : meetup.joinedByMe ? "已报名" : "",
     commentCount: (meetup.comments || []).length,
     previewComments: (meetup.comments || []).slice(0, 2),
     cardClass: `meetup-card ${meetup.type}`
@@ -111,11 +114,16 @@ function listMeetups(type) {
   return filtered.map(decorateMeetup);
 }
 
-function getMyMeetups() {
+function getMyMeetups(filter = "all") {
   const state = loadMeetupState();
 
   return (state.meetups || [])
-    .filter((meetup) => meetup.author === "我" || meetup.joinedByMe)
+    .filter((meetup) => {
+      if (filter === "created") return meetup.author === "我";
+      if (filter === "joined") return meetup.joinedByMe && meetup.author !== "我";
+
+      return meetup.author === "我" || meetup.joinedByMe;
+    })
     .map(decorateMeetup);
 }
 
@@ -179,6 +187,34 @@ function joinMeetup(id) {
   return result;
 }
 
+function cancelMeetup(id) {
+  const state = loadMeetupState();
+  const targetId = Number(id);
+  let result = "missing";
+
+  state.meetups = (state.meetups || []).map((meetup) => {
+    if (Number(meetup.id) !== targetId) return meetup;
+    if (meetup.author === "我") {
+      result = "owner";
+      return meetup;
+    }
+    if (!meetup.joinedByMe) {
+      result = "not_joined";
+      return meetup;
+    }
+
+    result = "success";
+    return Object.assign({}, meetup, {
+      joined: Math.max(0, meetup.joined - 1),
+      joinedByMe: false
+    });
+  });
+
+  saveMeetupState(state);
+
+  return result;
+}
+
 function addMeetupComment(id, text) {
   const content = String(text || "").trim().slice(0, 60);
   if (!content) return { result: "empty" };
@@ -211,6 +247,7 @@ function addMeetupComment(id, text) {
 module.exports = {
   TYPES,
   addMeetupComment,
+  cancelMeetup,
   createMeetup,
   decorateType,
   getMeetup,

@@ -1,6 +1,7 @@
 const { addPoints } = require("../../../utils/gamification");
 const {
   addComment,
+  deletePost,
   getPost,
   reportPost: hideReportedPost,
   togglePostReaction
@@ -119,6 +120,38 @@ Page({
           icon: "none",
           duration: 1000
         });
+      }
+    });
+  },
+
+  deleteMyPost() {
+    wx.showModal({
+      title: "删除这条动态？",
+      content: "删除后会从鱼塘和你的个人主页里移除。",
+      confirmText: "删除",
+      confirmColor: "#B65F2A",
+      cancelText: "算了",
+      success: (res) => {
+        if (!res.confirm) return;
+
+        const result = deletePost(this.data.postId);
+        wx.showToast({
+          title: result === "success" ? "已删除" : "没找到这条动态",
+          icon: "none",
+          duration: 900
+        });
+        if (result === "success") {
+          setTimeout(() => {
+            wx.navigateBack({
+              delta: 1,
+              fail() {
+                wx.switchTab({
+                  url: "/pages/fish/home/index"
+                });
+              }
+            });
+          }, 450);
+        }
       }
     });
   },
