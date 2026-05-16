@@ -81,6 +81,13 @@ Page({
     });
   },
 
+  closePublish() {
+    this.setData({
+      publishOpen: false,
+      publishButtonText: "发约局"
+    });
+  },
+
   changePublishType(event) {
     const type = event.currentTarget.dataset.id;
 
@@ -170,6 +177,7 @@ Page({
     if (result === "success") {
       const pointResult = addPoints("meetup_join", 2, { dailyLimit: 3 });
       this.showPointToast(pointResult, "报名约局");
+      this.showJoinReminder();
       return;
     }
 
@@ -183,6 +191,12 @@ Page({
       title: messageMap[result] || "报名失败了",
       icon: "none",
       duration: 1200
+    });
+  },
+
+  goMeetupDetail(event) {
+    wx.navigateTo({
+      url: `/pages/offwork/detail/index?id=${event.currentTarget.dataset.id}`
     });
   },
 
@@ -218,6 +232,15 @@ Page({
     this.showPointToast(pointResult, "评论约局");
   },
 
+  showJoinReminder() {
+    wx.showModal({
+      title: "报名成功",
+      content: "出发前记得在评论里确认时间、地点、人数和费用，线下见面优先选公开场所。",
+      confirmText: "知道了",
+      showCancel: false
+    });
+  },
+
   showPointToast(result, title) {
     this.playPointFeedback(result, title);
     wx.showToast({
@@ -242,5 +265,8 @@ Page({
         pointFeedback: null
       });
     }, 1350);
+  },
+
+  noop() {
   }
 });

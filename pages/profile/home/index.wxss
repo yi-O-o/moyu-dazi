@@ -31,10 +31,44 @@
   margin-bottom: 6rpx;
 }
 
+.name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
 .name {
-  display: block;
   font-size: 38rpx;
   font-weight: 800;
+  line-height: 1.25;
+}
+
+.status-badge {
+  max-width: 330rpx;
+  min-height: 46rpx;
+  padding: 0 14rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 253, 249, 0.78);
+  border: 2rpx solid rgba(111, 159, 114, 0.32);
+  color: #4f7f52;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.status-badge text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.status-empty {
+  color: #9b8475;
+  font-size: 22rpx;
+  font-weight: 700;
 }
 
 .desc {
@@ -105,9 +139,88 @@
   line-height: 1.5;
 }
 
+.welfare-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 18rpx;
+  background: linear-gradient(135deg, #fff7ec 0%, #f7fbe8 100%);
+  border-color: #dfe9bf;
+}
+
+.welfare-title {
+  display: block;
+  color: #3a2a22;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.welfare-desc {
+  display: block;
+  margin-top: 8rpx;
+  color: #8a7467;
+  font-size: 25rpx;
+  line-height: 1.45;
+}
+
+.welfare-arrow {
+  flex: 0 0 auto;
+  color: #b9a69a;
+  font-size: 42rpx;
+}
+
 .booking {
   background: #fff3e6;
   border-color: #f3caa6;
+}
+
+.meetup-list-mini {
+  overflow: hidden;
+  border: 2rpx solid rgba(234, 217, 201, 0.82);
+  border-radius: 8rpx;
+  background: rgba(255, 253, 249, 0.96);
+  box-shadow: 0 18rpx 42rpx rgba(118, 82, 55, 0.08);
+}
+
+.meetup-mini {
+  min-height: 104rpx;
+  padding: 18rpx 24rpx;
+  border-bottom: 2rpx solid #f2e4d6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.meetup-mini:last-child {
+  border-bottom: 0;
+}
+
+.meetup-mini-title {
+  display: block;
+  color: #3a2a22;
+  font-size: 27rpx;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.meetup-mini-meta {
+  display: block;
+  margin-top: 7rpx;
+  color: #9b8475;
+  font-size: 22rpx;
+  line-height: 1.35;
+}
+
+.meetup-mini-status {
+  flex: 0 0 auto;
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  color: #b65f2a;
+  background: #fff0dc;
+  font-size: 22rpx;
+  font-weight: 800;
 }
 
 .pond-panel {

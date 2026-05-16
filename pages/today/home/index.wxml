@@ -116,7 +116,7 @@
         <text class="panel-kicker">玄学一下</text>
         <text class="panel-title">抽一支今日工位签</text>
       </view>
-      <text class="panel-tag">首次 +1</text>
+      <text class="panel-tag">每日一次</text>
     </view>
     <view class="mystic-empty" wx:if="{{!mysticResult}}">
       <text>不知道今天适合硬刚、低调、摸鱼，还是直接盼下班。</text>
@@ -130,10 +130,6 @@
       <text class="mystic-desc">{{mysticResult.desc}}</text>
       <text class="mystic-line">{{mysticResult.lucky}}</text>
       <text class="mystic-line muted-line">{{mysticResult.avoid}}</text>
-      <view class="mystic-action-row">
-        <view class="mystic-button secondary" bindtap="drawMysticSign">今日签不换</view>
-        <view class="mystic-button secondary" bindtap="shareMysticToFish">发鱼塘</view>
-      </view>
     </view>
   </view>
 

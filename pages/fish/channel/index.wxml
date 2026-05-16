@@ -41,7 +41,7 @@
 
     <view class="post-card" wx:for="{{posts}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.id}}">
       <view class="post-head">
-        <view class="avatar">{{item.avatar}}</view>
+        <view class="avatar" catchtap="goUserProfile" data-author="{{item.author}}">{{item.avatar}}</view>
         <view>
           <text class="post-author">{{item.author}}</text>
           <text class="post-meta">{{item.createdAt}} · {{item.mood}}</text>

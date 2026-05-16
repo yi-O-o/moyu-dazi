@@ -376,35 +376,6 @@ Page({
     }, 900);
   },
 
-  shareMysticToFish() {
-    const sign = this.data.mysticResult;
-    if (!sign) {
-      wx.showToast({
-        title: "先抽一支工位签",
-        icon: "none",
-        duration: 1000
-      });
-      return;
-    }
-
-    createPost({
-      channel: "fish",
-      title: sign.level + "：" + sign.title,
-      content: `${sign.desc}\n${sign.lucky}\n${sign.avoid}`,
-      tagInput: "玄学 工位签 摸鱼",
-      mood: sign.level
-    });
-    const result = addPoints("pond_publish", 2, { dailyLimit: 3 });
-
-    this.refreshGame();
-    this.playPointFeedback(result, "发到鱼塘");
-    wx.showToast({
-      title: result.added > 0 ? "已发到鱼塘 +2" : "已发到鱼塘",
-      icon: "none",
-      duration: 1200
-    });
-  },
-
   showPointToast(result, title) {
     this.playPointFeedback(result, title);
     wx.showToast({

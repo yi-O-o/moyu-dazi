@@ -1,0 +1,33 @@
+<view class="page user-page">
+  <view class="user-hero">
+    <view class="avatar">{{avatar}}</view>
+    <view>
+      <text class="eyebrow">个人主页</text>
+      <view class="name-row">
+        <text class="name">{{author}}</text>
+        <view class="status-badge" wx:if="{{mystic}}">
+          <text>{{mystic.level}} · {{mystic.title}}</text>
+        </view>
+        <text class="status-empty" wx:else>未设今日状态</text>
+      </view>
+      <text class="desc">上班动态、今日状态和一点摸鱼痕迹。</text>
+    </view>
+  </view>
+
+  <view class="section-title">鱼塘动态</view>
+  <view class="post-list" wx:if="{{posts.length}}">
+    <view class="post-item" wx:for="{{posts}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.id}}">
+      <view class="post-main">
+        <text class="post-title">{{item.title}}</text>
+        <text class="post-content">{{item.content}}</text>
+        <text class="post-meta">{{item.channelTitle}} · {{item.createdAt}} · 评论 {{item.commentCount}}</text>
+      </view>
+      <text class="post-arrow">›</text>
+    </view>
+  </view>
+  <view class="panel empty-panel" wx:else>
+    <text class="empty-title">{{isMine ? "还没发过鱼塘动态" : "TA 还没发过鱼塘动态"}}</text>
+    <text class="empty-desc">{{isMine ? "可以去鱼塘像朋友圈一样随手发一条。" : "先看看 TA 的今日工位签吧。"}}</text>
+    <view class="empty-button" wx:if="{{isMine}}" bindtap="goToday">回今日页</view>
+  </view>
+</view>

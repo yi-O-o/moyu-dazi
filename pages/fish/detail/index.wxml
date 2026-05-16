@@ -6,7 +6,7 @@
 
   <view class="detail-card">
     <view class="post-head">
-      <view class="avatar">{{post.avatar}}</view>
+      <view class="avatar" catchtap="goUserProfile" data-author="{{post.author}}">{{post.avatar}}</view>
       <view>
         <text class="post-author">{{post.author}}</text>
         <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>
@@ -50,9 +50,9 @@
     </view>
     <view class="comment-list" wx:if="{{post.comments.length}}">
       <view class="comment-item" wx:for="{{post.comments}}" wx:for-item="comment" wx:key="id">
-        <view class="comment-avatar">{{comment.avatar}}</view>
+        <view class="comment-avatar" catchtap="goUserProfile" data-author="{{comment.author}}">{{comment.avatar}}</view>
         <view>
-          <text class="comment-author">{{comment.author}}</text>
+          <text class="comment-author" catchtap="goUserProfile" data-author="{{comment.author}}">{{comment.author}}</text>
           <text class="comment-content">{{comment.content}}</text>
         </view>
       </view>

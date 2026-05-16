@@ -1,9 +1,11 @@
-const { DEFAULT_WORK_CONFIG, getWorkStats, loadWorkConfig } = require("../../../utils/workday");
+const { getWorkStats, loadWorkConfig } = require("../../../utils/workday");
 const {
   getMyComments,
   getMyFavorites,
   getMyPosts
 } = require("../../../utils/fishpond");
+const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
+const { getMyMeetups } = require("../../../utils/meetups");
 
 function decorateTabs(activeTab) {
   return [
@@ -19,8 +21,9 @@ function decorateTabs(activeTab) {
 
 Page({
   data: {
-    settings: DEFAULT_WORK_CONFIG,
     todayEarned: "0.00",
+    game: buildGameSummary(loadGameState()),
+    myMeetups: [],
     pondTab: "posts",
     pondTabs: decorateTabs("posts"),
     myPosts: [],
@@ -37,8 +40,9 @@ Page({
     const settings = loadWorkConfig();
     const stats = getWorkStats(settings);
     this.setData({
-      settings,
       todayEarned: stats.earned,
+      game: buildGameSummary(loadGameState()),
+      myMeetups: getMyMeetups(),
       myPosts: getMyPosts(),
       myComments: getMyComments(),
       myFavorites: getMyFavorites()
@@ -57,6 +61,18 @@ Page({
   goPostDetail(event) {
     wx.navigateTo({
       url: `/pages/fish/detail/index?id=${event.currentTarget.dataset.id}`
+    });
+  },
+
+  goMeetupDetail(event) {
+    wx.navigateTo({
+      url: `/pages/offwork/detail/index?id=${event.currentTarget.dataset.id}`
+    });
+  },
+
+  goWelfare() {
+    wx.navigateTo({
+      url: "/pages/profile/welfare/index"
     });
   }
 });

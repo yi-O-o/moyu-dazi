@@ -21,22 +21,29 @@
     </view>
   </scroll-view>
 
-  <view class="publish-panel" wx:if="{{publishOpen}}">
-    <text class="publish-title">发一个下班约局</text>
-    <view class="publish-type-row">
-      <view class="{{item.className}}" wx:for="{{publishTypes}}" wx:key="id" bindtap="changePublishType" data-id="{{item.id}}">
-        {{item.title}}
+  <view class="publish-modal" wx:if="{{publishOpen}}">
+    <view class="publish-mask" bindtap="closePublish"></view>
+    <view class="publish-panel" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="publish-head">
+        <text class="publish-title">发一个下班约局</text>
+        <view class="publish-close" bindtap="closePublish">×</view>
       </view>
+      <view class="publish-type-row">
+        <view class="{{item.className}}" wx:for="{{publishTypes}}" wx:key="id" bindtap="changePublishType" data-id="{{item.id}}">
+          {{item.title}}
+        </view>
+      </view>
+      <input class="meetup-input" maxlength="24" placeholder="标题，比如：今晚火锅饭搭子" value="{{form.title}}" bindinput="handleTitleInput" />
+      <view class="form-row">
+        <input class="meetup-input half" maxlength="12" placeholder="时间，如 19:30" value="{{form.time}}" bindinput="handleTimeInput" />
+        <input class="meetup-input half" type="number" maxlength="2" placeholder="人数" value="{{form.size}}" bindinput="handleSizeInput" />
+      </view>
+      <input class="meetup-input" maxlength="24" placeholder="地点，比如：公司附近 / 地铁口" value="{{form.location}}" bindinput="handleLocationInput" />
+      <textarea class="meetup-textarea" maxlength="120" placeholder="补充说明：AA、是否新手友好、想聊什么都可以" value="{{form.desc}}" bindinput="handleDescInput"></textarea>
+      <text class="safe-tip">线下见面注意安全，建议选择公开场所，先在评论里确认细节。</text>
+      <view class="submit-meetup" bindtap="publishMeetup">发布约局</view>
     </view>
-    <input class="meetup-input" maxlength="24" placeholder="标题，比如：今晚火锅饭搭子" value="{{form.title}}" bindinput="handleTitleInput" />
-    <view class="form-row">
-      <input class="meetup-input half" maxlength="12" placeholder="时间，如 19:30" value="{{form.time}}" bindinput="handleTimeInput" />
-      <input class="meetup-input half" type="number" maxlength="2" placeholder="人数" value="{{form.size}}" bindinput="handleSizeInput" />
-    </view>
-    <input class="meetup-input" maxlength="24" placeholder="地点，比如：公司附近 / 地铁口" value="{{form.location}}" bindinput="handleLocationInput" />
-    <textarea class="meetup-textarea" maxlength="120" placeholder="补充说明：AA、是否新手友好、想聊什么都可以" value="{{form.desc}}" bindinput="handleDescInput"></textarea>
-    <text class="safe-tip">线下见面注意安全，建议选择公开场所，先在评论里确认细节。</text>
-    <view class="submit-meetup" bindtap="publishMeetup">发布约局</view>
   </view>
 
   <view class="section-head">
@@ -65,6 +72,7 @@
       </view>
       <view class="meetup-footer">
         <text class="meetup-author">由 {{item.author}} 发起 · {{item.createdAt}}</text>
+        <view class="detail-button" bindtap="goMeetupDetail" data-id="{{item.id}}">详情</view>
         <view class="{{item.joinButtonClass}}" bindtap="joinMeetup" data-id="{{item.id}}">
           {{item.joinText}}
         </view>

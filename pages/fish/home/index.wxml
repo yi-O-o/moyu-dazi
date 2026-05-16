@@ -30,6 +30,23 @@
     </scroll-view>
   </view>
 
+  <view class="highlight-panel">
+    <view class="section-head compact">
+      <text class="section-title compact-title">摸鱼热榜</text>
+      <text class="section-action">精选和热词</text>
+    </view>
+    <view class="hot-tag-row" wx:if="{{highlights.hotTags.length}}">
+      <text class="hot-tag" wx:for="{{highlights.hotTags}}" wx:key="*this">#{{item}}</text>
+    </view>
+    <view class="featured-list">
+      <view class="featured-item" wx:for="{{highlights.featuredPosts}}" wx:key="id" bindtap="goPostDetail" data-id="{{item.id}}">
+        <text class="featured-channel">{{item.channelTitle}}</text>
+        <text class="featured-title">{{item.title}}</text>
+        <text class="featured-meta">赞 {{item.likeCount}} · 收藏 {{item.favoriteCount}} · 评论 {{item.commentCount}}</text>
+      </view>
+    </view>
+  </view>
+
   <view class="publish-modal" wx:if="{{publishOpen}}">
     <view class="publish-mask" bindtap="closePublish"></view>
     <view class="publish-sheet">
@@ -75,12 +92,12 @@
 
     <view class="post-card" wx:for="{{posts}}" wx:for-item="post" wx:key="id" bindtap="goPostDetail" data-id="{{post.id}}">
       <view class="post-head">
-        <view class="avatar">{{post.avatar}}</view>
+        <view class="avatar" catchtap="goUserProfile" data-author="{{post.author}}">{{post.avatar}}</view>
         <view>
           <text class="post-author">{{post.author}}</text>
           <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>
         </view>
-        <text class="post-more" catchtap="reportPost">···</text>
+        <text class="post-more" catchtap="reportPost" data-id="{{post.id}}">···</text>
       </view>
 
       <text class="post-content">{{post.content}}</text>
@@ -115,7 +132,7 @@
 
       <view class="comment-list" wx:if="{{post.latestComments.length}}">
         <view class="comment-item" wx:for="{{post.latestComments}}" wx:for-item="comment" wx:key="id">
-          <text class="comment-author">{{comment.author}}</text>
+          <text class="comment-author" catchtap="goUserProfile" data-author="{{comment.author}}">{{comment.author}}</text>
           <text class="comment-content">{{comment.content}}</text>
         </view>
       </view>

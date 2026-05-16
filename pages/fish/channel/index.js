@@ -36,6 +36,14 @@ Page({
     });
   },
 
+  goUserProfile(event) {
+    const author = event.currentTarget.dataset.author || "我";
+
+    wx.navigateTo({
+      url: `/pages/profile/user/index?author=${encodeURIComponent(author)}`
+    });
+  },
+
   goFishHome() {
     wx.switchTab({
       url: "/pages/fish/home/index"

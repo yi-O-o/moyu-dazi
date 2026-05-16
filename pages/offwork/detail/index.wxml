@@ -1,0 +1,51 @@
+<view class="page detail-page" wx:if="{{meetup}}">
+  <view class="point-feedback" wx:if="{{pointFeedback}}">
+    <text class="point-feedback-title">{{pointFeedback.title}}</text>
+    <text class="point-feedback-value">{{pointFeedback.value}}</text>
+  </view>
+
+  <view class="{{meetup.cardClass}} detail-card">
+    <view class="meetup-head">
+      <text class="meetup-tag">{{meetup.typeTitle}}</text>
+      <text class="meetup-status">{{meetup.statusText}}</text>
+    </view>
+    <text class="meetup-title">{{meetup.title}}</text>
+    <text class="meetup-desc">{{meetup.desc}}</text>
+    <view class="meetup-meta">
+      <text>{{meetup.time}}</text>
+      <text>{{meetup.location}}</text>
+      <text>{{meetup.joined}}/{{meetup.size}} 人</text>
+    </view>
+    <text class="meetup-author">由 {{meetup.author}} 发起 · {{meetup.createdAt}}</text>
+    <view class="{{meetup.joinButtonClass}}" bindtap="joinMeetup">{{meetup.joinText}}</view>
+  </view>
+
+  <view class="safe-panel">
+    <text class="safe-title">线下见面安全提示</text>
+    <text class="safe-desc">优先选择公开场所，先在评论里确认时间、地点、费用和人数。不要提前转账，不要透露住址、身份证、公司敏感信息。</text>
+  </view>
+
+  <view class="comment-panel">
+    <view class="comment-head">
+      <text>讨论 {{meetup.commentCount}}</text>
+      <text>评论 +1</text>
+    </view>
+    <view class="comment-list" wx:if="{{meetup.commentCount}}">
+      <view class="comment-item" wx:for="{{meetup.comments}}" wx:key="id">
+        <text class="comment-author">{{item.author}}</text>
+        <text class="comment-text">{{item.text}}</text>
+        <text class="comment-time">{{item.createdAt}}</text>
+      </view>
+    </view>
+    <view class="comment-empty" wx:else>还没人问细节，来开个头。</view>
+  </view>
+
+  <view class="comment-bar">
+    <input class="comment-input" maxlength="60" placeholder="问问时间、地点、AA 或新手友不友好" value="{{commentInput}}" bindinput="handleCommentInput" />
+    <view class="comment-button" bindtap="submitComment">发送</view>
+  </view>
+</view>
+
+<view class="page detail-page" wx:else>
+  <view class="missing-card">这个约局暂时找不到了。</view>
+</view>

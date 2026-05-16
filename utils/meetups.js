@@ -111,6 +111,22 @@ function listMeetups(type) {
   return filtered.map(decorateMeetup);
 }
 
+function getMyMeetups() {
+  const state = loadMeetupState();
+
+  return (state.meetups || [])
+    .filter((meetup) => meetup.author === "我" || meetup.joinedByMe)
+    .map(decorateMeetup);
+}
+
+function getMeetup(id) {
+  const state = loadMeetupState();
+  const targetId = Number(id);
+  const meetup = (state.meetups || []).find((item) => Number(item.id) === targetId);
+
+  return meetup ? decorateMeetup(meetup) : null;
+}
+
 function createMeetup(input) {
   const state = loadMeetupState();
   const size = Math.min(20, Math.max(2, Number(input.size) || 2));
@@ -197,6 +213,8 @@ module.exports = {
   addMeetupComment,
   createMeetup,
   decorateType,
+  getMeetup,
+  getMyMeetups,
   joinMeetup,
   listMeetups
 };

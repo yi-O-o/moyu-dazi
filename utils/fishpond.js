@@ -144,6 +144,20 @@ function getHotTags(posts) {
     .slice(0, 6);
 }
 
+function getFeaturedPosts(posts) {
+  return posts
+    .filter((post) => !post.reported)
+    .slice()
+    .sort((first, second) => {
+      const firstScore = first.likeCount + first.favoriteCount * 2 + (first.comments || []).length * 2 + first.sameCount;
+      const secondScore = second.likeCount + second.favoriteCount * 2 + (second.comments || []).length * 2 + second.sameCount;
+
+      return secondScore - firstScore;
+    })
+    .slice(0, 3)
+    .map(decoratePost);
+}
+
 function decoratePost(post) {
   const channel = getChannel(post.channel);
   const comments = (post.comments || []).map((comment) => {
@@ -214,7 +228,7 @@ function saveFishpondState(state) {
 
 function listPosts(channel) {
   const state = loadFishpondState();
-  const posts = state.posts || [];
+  const posts = (state.posts || []).filter((post) => !post.reported);
   const filtered = channel && channel !== "all"
     ? posts.filter((post) => post.channel === channel)
     : posts;
@@ -226,8 +240,8 @@ function getChannelSummary(channelId) {
   const state = loadFishpondState();
   const channel = getChannel(channelId);
   const posts = channel.id === "all"
-    ? state.posts || []
-    : (state.posts || []).filter((post) => post.channel === channel.id);
+    ? (state.posts || []).filter((post) => !post.reported)
+    : (state.posts || []).filter((post) => post.channel === channel.id && !post.reported);
   const comments = posts.reduce((sum, post) => sum + (post.comments || []).length, 0);
 
   return Object.assign({}, channel, {
@@ -244,10 +258,20 @@ function listChannelSummaries() {
   });
 }
 
+function getFishpondHighlights() {
+  const state = loadFishpondState();
+  const posts = (state.posts || []).filter((post) => !post.reported);
+
+  return {
+    hotTags: getHotTags(posts),
+    featuredPosts: getFeaturedPosts(posts)
+  };
+}
+
 function getPost(postId) {
   const state = loadFishpondState();
   const targetId = Number(postId);
-  const post = (state.posts || []).find((item) => Number(item.id) === targetId);
+  const post = (state.posts || []).find((item) => Number(item.id) === targetId && !item.reported);
 
   return post ? decoratePost(post) : null;
 }
@@ -256,7 +280,16 @@ function getMyPosts() {
   const state = loadFishpondState();
 
   return (state.posts || [])
-    .filter((post) => post.author === "我")
+    .filter((post) => post.author === "我" && !post.reported)
+    .map(decoratePost);
+}
+
+function getPostsByAuthor(author) {
+  const state = loadFishpondState();
+  const targetAuthor = String(author || "我");
+
+  return (state.posts || [])
+    .filter((post) => post.author === targetAuthor && !post.reported)
     .map(decoratePost);
 }
 
@@ -264,7 +297,7 @@ function getMyFavorites() {
   const state = loadFishpondState();
 
   return (state.posts || [])
-    .filter((post) => post.favorited)
+    .filter((post) => post.favorited && !post.reported)
     .map(decoratePost);
 }
 
@@ -273,6 +306,8 @@ function getMyComments() {
   const items = [];
 
   (state.posts || []).forEach((post) => {
+    if (post.reported) return;
+
     (post.comments || []).forEach((comment) => {
       if (comment.author !== "我") return;
 
@@ -385,18 +420,40 @@ function addComment(postId, content) {
   return comment;
 }
 
+function reportPost(postId) {
+  const state = loadFishpondState();
+  const targetId = Number(postId);
+  let result = "missing";
+
+  state.posts = (state.posts || []).map((post) => {
+    if (Number(post.id) !== targetId) return post;
+
+    result = "success";
+    return Object.assign({}, post, {
+      reported: true
+    });
+  });
+
+  saveFishpondState(state);
+
+  return result;
+}
+
 module.exports = {
   CHANNELS,
   addComment,
   createPost,
   getChannel,
   getChannelSummary,
+  getFishpondHighlights,
   getPost,
   getMyComments,
   getMyFavorites,
   getMyPosts,
+  getPostsByAuthor,
   listChannelSummaries,
   listPosts,
   loadFishpondState,
+  reportPost,
   togglePostReaction
 };

@@ -1,6 +1,14 @@
 const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
 
 function buildPetMessage(summary) {
+  if (summary.todayMystic) {
+    return `今日工位签是「${summary.todayMystic.title}」，我替你记着节奏。`;
+  }
+
+  if (summary.wishes && summary.wishes.length) {
+    return `今晚想${summary.wishes[0].text}，下班后别把自己弄丢。`;
+  }
+
   const unlocked = (summary.accessories || []).filter((item) => item.unlocked);
   const latest = unlocked[unlocked.length - 1];
 
@@ -9,6 +17,26 @@ function buildPetMessage(summary) {
   }
 
   return "我今天不住框里了，正在桌面上晃悠。";
+}
+
+function buildActions(summary) {
+  return [
+    {
+      id: "pat",
+      title: "摸摸头",
+      text: summary.todayPoints > 0 ? `今天已经攒了 ${summary.todayPoints} 分，我有认真看见。` : "摸摸头成功，先把肩膀放松一点。"
+    },
+    {
+      id: "feed",
+      title: "喂小饼干",
+      text: summary.wishes && summary.wishes.length ? `吃完这块，我们一起等下班去${summary.wishes[0].text}。` : "小搭子吃饱了，正在开心摇晃。"
+    },
+    {
+      id: "play",
+      title: "陪它玩",
+      text: summary.level.level >= 4 ? "它戴着新装扮绕工位跑了一圈，又精神了。" : "它绕着工位跑了一圈，又回来了。"
+    }
+  ];
 }
 
 Page({
@@ -26,11 +54,7 @@ Page({
       { id: 2, className: "heart two" },
       { id: 3, className: "heart three" }
     ],
-    actions: [
-      { id: "pat", title: "摸摸头", text: "摸摸头成功，亲密度 +1。" },
-      { id: "feed", title: "喂小饼干", text: "小搭子吃饱了，正在开心摇晃。" },
-      { id: "play", title: "陪它玩", text: "它绕着工位跑了一圈，又回来了。" }
-    ]
+    actions: buildActions(buildGameSummary(loadGameState()))
   },
 
   onReady() {
@@ -46,7 +70,8 @@ Page({
 
     this.setData({
       game,
-      message: buildPetMessage(game)
+      message: buildPetMessage(game),
+      actions: buildActions(game)
     });
   },
 
