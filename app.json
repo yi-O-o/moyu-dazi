@@ -9,9 +9,6 @@
     "pages/pet/home/index",
     "pages/work/salary/index",
     "pages/offwork/detail/index",
-    "pages/ai/chat/index",
-    "pages/ai/writer/index",
-    "pages/ai/image/index",
     "pages/profile/user/index",
     "pages/profile/welfare/index"
   ],
@@ -22,6 +19,14 @@
     "backgroundColor": "#FFF8EF",
     "backgroundTextStyle": "dark"
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于发布下班约局时选择集合地点，方便报名用户导航。"
+    }
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ],
   "tabBar": {
     "color": "#9B8475",
     "selectedColor": "#B65F2A",

@@ -9,54 +9,7 @@ const TYPES = [
   { id: "movie", title: "电影" }
 ];
 
-const SEED_MEETUPS = [
-  {
-    id: 2001,
-    type: "sport",
-    title: "今晚 8 点羽毛球",
-    time: "20:00",
-    location: "公司附近球馆",
-    size: 4,
-    joined: 2,
-    joinedByMe: false,
-    author: "球场续命人",
-    desc: "新手友好，AA 场地费，打完可以一起买水。",
-    createdAt: "刚刚",
-    comments: [
-      { id: 1, author: "下班回血中", text: "新手能去吗？", createdAt: "刚刚" }
-    ]
-  },
-  {
-    id: 2002,
-    type: "food",
-    title: "下班火锅饭搭子",
-    time: "19:10",
-    location: "地铁口附近",
-    size: 3,
-    joined: 1,
-    joinedByMe: false,
-    author: "碳水快乐",
-    desc: "不聊工作，只负责吃饱。",
-    createdAt: "12 分钟前",
-    comments: [
-      { id: 1, author: "准点关电脑", text: "这个我可以，想吃辣锅。", createdAt: "5 分钟前" }
-    ]
-  },
-  {
-    id: 2003,
-    type: "mahjong",
-    title: "饭后休闲麻将",
-    time: "20:30",
-    location: "老地方",
-    size: 4,
-    joined: 3,
-    joinedByMe: false,
-    author: "三缺一观察员",
-    desc: "轻松局，主打聊天和回血。",
-    createdAt: "半小时前",
-    comments: []
-  }
-];
+const LEGACY_SEED_IDS = [2001, 2002, 2003];
 
 function getType(id) {
   return TYPES.find((type) => type.id === id) || TYPES[0];
@@ -74,9 +27,18 @@ function decorateMeetup(meetup) {
   const type = getType(meetup.type);
   const remain = Math.max(0, meetup.size - meetup.joined);
   const canCancel = meetup.joinedByMe && meetup.author !== "我";
+  const hasLocationMap = meetup.latitude !== null
+    && meetup.latitude !== undefined
+    && meetup.latitude !== ""
+    && meetup.longitude !== null
+    && meetup.longitude !== undefined
+    && meetup.longitude !== ""
+    && Number.isFinite(Number(meetup.latitude))
+    && Number.isFinite(Number(meetup.longitude));
 
   return Object.assign({}, meetup, {
     typeTitle: type.title,
+    hasLocationMap,
     remain,
     statusText: remain > 0 ? `还缺 ${remain} 人` : "已满员",
     joinText: meetup.joinedByMe ? "已报名" : remain > 0 ? "我想去" : "满员了",
@@ -92,10 +54,20 @@ function decorateMeetup(meetup) {
 function loadMeetupState() {
   const saved = wx.getStorageSync(STORAGE_KEY);
 
-  if (saved && saved.meetups) return saved;
+  if (saved && Array.isArray(saved.meetups)) {
+    const meetups = saved.meetups.filter((meetup) => {
+      return LEGACY_SEED_IDS.indexOf(Number(meetup.id)) === -1;
+    });
+
+    if (meetups.length !== saved.meetups.length) {
+      return saveMeetupState(Object.assign({}, saved, { meetups }));
+    }
+
+    return Object.assign({}, saved, { meetups });
+  }
 
   return {
-    meetups: SEED_MEETUPS
+    meetups: []
   };
 }
 
@@ -144,6 +116,9 @@ function createMeetup(input) {
     title: String(input.title || "").trim().slice(0, 24),
     time: String(input.time || "").trim().slice(0, 12),
     location: String(input.location || "").trim().slice(0, 24),
+    locationAddress: String(input.locationAddress || "").trim().slice(0, 80),
+    latitude: Number(input.latitude) || null,
+    longitude: Number(input.longitude) || null,
     size,
     joined: 1,
     joinedByMe: true,

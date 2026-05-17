@@ -1,8 +1,8 @@
 <view class="page welfare-page">
   <view class="welfare-hero">
     <text class="eyebrow warm">宠物福利池</text>
-    <text class="welfare-title">攒分不是提现，是获得参与资格</text>
-    <text class="welfare-desc">福利池适合后期做奶茶券、运动券、会员券和小额红包活动。规则先写清楚，用户预期就不会跑偏。</text>
+    <text class="welfare-title">攒分是成长，也是活动资格</text>
+    <text class="welfare-desc">福利池适合后期做奶茶券、运动券、会员体验和限定装扮活动。规则先写清楚，用户预期就不会跑偏。</text>
     <view class="level-card">
       <text>当前 Lv.{{game.level.level}} {{game.level.title}}</text>
       <text>{{game.points}} 分</text>

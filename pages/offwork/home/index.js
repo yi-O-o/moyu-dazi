@@ -23,11 +23,12 @@ Page({
     activeType: "all",
     types: decorateType("all"),
     publishTypes: getPublishTypes("food"),
-    meetups: listMeetups("all"),
-    hasMeetups: true,
+    meetups: [],
+    hasMeetups: false,
     emptyVisible: false,
     publishOpen: false,
     publishButtonText: "发约局",
+    manualLocationOpen: false,
     commentInputs: {},
     pointFeedback: null,
     form: {
@@ -35,6 +36,9 @@ Page({
       title: "",
       time: "",
       location: "",
+      locationAddress: "",
+      latitude: null,
+      longitude: null,
       size: 2,
       desc: ""
     }
@@ -49,6 +53,16 @@ Page({
   },
 
   refreshMeetups() {
+    this.setData({
+      types: decorateType(this.data.activeType),
+      meetups: [],
+      hasMeetups: false,
+      emptyVisible: false
+    });
+    this.refreshCloudMeetups();
+  },
+
+  refreshLocalMeetups() {
     const meetups = listMeetups(this.data.activeType).map((meetup) => {
       return Object.assign({}, meetup, {
         commentDraft: this.data.commentInputs[meetup.id] || ""
@@ -56,12 +70,10 @@ Page({
     });
 
     this.setData({
-      types: decorateType(this.data.activeType),
       meetups,
       hasMeetups: meetups.length > 0,
       emptyVisible: meetups.length === 0
     });
-    this.refreshCloudMeetups();
   },
 
   refreshCloudMeetups() {
@@ -72,14 +84,13 @@ Page({
         });
       });
 
-      if (!meetups.length && this.data.meetups.length) return;
-
       this.setData({
         meetups,
         hasMeetups: meetups.length > 0,
         emptyVisible: meetups.length === 0
       });
     }).catch(() => {
+      this.refreshLocalMeetups();
     });
   },
 
@@ -133,7 +144,51 @@ Page({
 
   handleLocationInput(event) {
     this.setData({
-      "form.location": event.detail.value
+      "form.location": event.detail.value,
+      "form.locationAddress": "",
+      "form.latitude": null,
+      "form.longitude": null
+    });
+  },
+
+  toggleManualLocation() {
+    this.setData({
+      manualLocationOpen: !this.data.manualLocationOpen
+    });
+  },
+
+  chooseMeetupLocation() {
+    if (!wx.chooseLocation) {
+      wx.showToast({
+        title: "当前微信版本暂不支持选点",
+        icon: "none",
+        duration: 1200
+      });
+      return;
+    }
+
+    wx.chooseLocation({
+      success: (res) => {
+        const name = String(res.name || "").trim();
+        const address = String(res.address || "").trim();
+
+        this.setData({
+          "form.location": (name || address).slice(0, 24),
+          "form.locationAddress": address.slice(0, 80),
+          "form.latitude": res.latitude,
+          "form.longitude": res.longitude,
+          manualLocationOpen: false
+        });
+      },
+      fail: (error) => {
+        if (error && String(error.errMsg || "").indexOf("cancel") >= 0) return;
+
+        wx.showToast({
+          title: "位置选择失败，可以先手动填写",
+          icon: "none",
+          duration: 1400
+        });
+      }
     });
   },
 
@@ -158,7 +213,7 @@ Page({
   },
 
   publishMeetup() {
-    const form = this.data.form;
+    const form = Object.assign({}, this.data.form);
 
     if (!form.title.trim() || !form.time.trim() || !form.location.trim()) {
       wx.showToast({
@@ -175,12 +230,16 @@ Page({
       activeType: form.type,
       publishOpen: false,
       publishButtonText: "发约局",
+      manualLocationOpen: false,
       publishTypes: getPublishTypes("food"),
       form: {
         type: "food",
         title: "",
         time: "",
         location: "",
+        locationAddress: "",
+        latitude: null,
+        longitude: null,
         size: 2,
         desc: ""
       }
@@ -188,9 +247,21 @@ Page({
     cloudApi.createMeetup(form).then(() => {
       this.refreshCloudMeetups();
       this.showPointToast(pointResult, "发布约局");
-    }).catch(() => {
+    }).catch((error) => {
+      if (!cloudApi.shouldUseLocalFallback(error)) {
+        this.setData({
+          activeType: form.type || "food",
+          publishOpen: true,
+          publishButtonText: "收起",
+          publishTypes: getPublishTypes(form.type || "food"),
+          form
+        });
+        cloudApi.showErrorToast(error, "约局发布失败");
+        return;
+      }
+
       createMeetup(form);
-      this.refreshMeetups();
+      this.refreshLocalMeetups();
       this.showPointToast(pointResult, "发布约局");
     });
   },
@@ -275,6 +346,27 @@ Page({
     });
   },
 
+  openMeetupLocation(event) {
+    const id = String(event.currentTarget.dataset.id || "");
+    const meetup = (this.data.meetups || []).find((item) => String(item.id) === id);
+
+    if (!meetup || !meetup.hasLocationMap) {
+      wx.showToast({
+        title: "这个约局还没有地图位置",
+        icon: "none",
+        duration: 1200
+      });
+      return;
+    }
+
+    wx.openLocation({
+      latitude: Number(meetup.latitude),
+      longitude: Number(meetup.longitude),
+      name: meetup.location || "约局地点",
+      address: meetup.locationAddress || meetup.location || ""
+    });
+  },
+
   submitComment(event) {
     const id = event.currentTarget.dataset.id;
     const text = this.data.commentInputs[id] || "";
@@ -297,7 +389,15 @@ Page({
     cloudApi.addMeetupComment({ id, text }).then(() => {
       this.refreshCloudMeetups();
       this.showPointToast(pointResult, "评论约局");
-    }).catch(() => {
+    }).catch((error) => {
+      if (!cloudApi.shouldUseLocalFallback(error)) {
+        this.setData({
+          [`commentInputs.${id}`]: text
+        });
+        cloudApi.showErrorToast(error, "评论失败");
+        return;
+      }
+
       if (result.result !== "success") {
         wx.showToast({
           title: "这个局暂时找不到了",

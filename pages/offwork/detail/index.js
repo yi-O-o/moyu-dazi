@@ -34,13 +34,16 @@ Page({
     if (!this.data.meetupId) return;
 
     this.setData({
-      meetup: getMeetup(this.data.meetupId)
+      meetup: null
     });
     cloudApi.getMeetup({ id: this.data.meetupId }).then((res) => {
       this.setData({
         meetup: res.meetup
       });
     }).catch(() => {
+      this.setData({
+        meetup: getMeetup(this.data.meetupId)
+      });
     });
   },
 
@@ -114,6 +117,26 @@ Page({
     });
   },
 
+  openMeetupLocation() {
+    const meetup = this.data.meetup;
+
+    if (!meetup || !meetup.hasLocationMap) {
+      wx.showToast({
+        title: "这个约局还没有地图位置",
+        icon: "none",
+        duration: 1200
+      });
+      return;
+    }
+
+    wx.openLocation({
+      latitude: Number(meetup.latitude),
+      longitude: Number(meetup.longitude),
+      name: meetup.location || "约局地点",
+      address: meetup.locationAddress || meetup.location || ""
+    });
+  },
+
   handleCommentInput(event) {
     this.setData({
       commentInput: event.detail.value
@@ -141,7 +164,15 @@ Page({
     cloudApi.addMeetupComment({ id: this.data.meetupId, text }).then(() => {
       this.refreshMeetup();
       this.showPointToast(pointResult, "评论约局");
-    }).catch(() => {
+    }).catch((error) => {
+      if (!cloudApi.shouldUseLocalFallback(error)) {
+        this.setData({
+          commentInput: text
+        });
+        cloudApi.showErrorToast(error, "评论失败");
+        return;
+      }
+
       if (result.result !== "success") {
         wx.showToast({
           title: "这个局暂时找不到了",

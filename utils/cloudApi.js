@@ -22,6 +22,20 @@ function callApi(action, data = {}) {
   });
 }
 
+function shouldUseLocalFallback(error) {
+  const blockedCodes = ["BAD_REQUEST", "CONTENT_RISK", "REVIEW_FAILED", "FORBIDDEN"];
+
+  return blockedCodes.indexOf(error && error.code) === -1;
+}
+
+function showErrorToast(error, fallback = "操作失败了") {
+  wx.showToast({
+    title: error && error.message ? error.message : fallback,
+    icon: "none",
+    duration: 1400
+  });
+}
+
 module.exports = {
   addFishComment(data) {
     return callApi("fish.comment", data);
@@ -94,6 +108,9 @@ module.exports = {
   toggleFishReaction(data) {
     return callApi("fish.react", data);
   },
+
+  shouldUseLocalFallback,
+  showErrorToast,
 
   upsertUserProfile(data) {
     return callApi("user.upsert", data);

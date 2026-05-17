@@ -1,13 +1,14 @@
 const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
+const cloudApi = require("../../../utils/cloudApi");
 
 const RULES = [
   {
-    title: "不是升级提现",
-    desc: "积分用于宠物成长和福利池参与资格，不承诺升级后直接获得现金。"
+    title: "积分是成长值",
+    desc: "积分用于宠物成长、身份展示和福利活动参与资格，不承诺固定奖励。"
   },
   {
     title: "达到等级后参与",
-    desc: "达到指定等级后，可参与奶茶券、运动券、会员券或小额红包等活动。"
+    desc: "达到指定等级后，可参与奶茶券、运动券、会员体验、限定装扮等活动。"
   },
   {
     title: "奖励有预算和名额",
@@ -23,7 +24,7 @@ const REWARDS = [
   { level: 5, title: "奶茶回血券", desc: "下班愿望守护者可参与，适合轻量首期福利。" },
   { level: 6, title: "运动搭子券", desc: "鱼塘活跃星可参与，和下班约局自然联动。" },
   { level: 7, title: "会员体验券", desc: "打工生存专家可参与，用于提升长期留存。" },
-  { level: 8, title: "小额红包池", desc: "福利合伙人可参与，必须设置固定预算和名额。" }
+  { level: 8, title: "限定宠物装扮", desc: "福利合伙人可参与，适合做长期身份感。" }
 ];
 
 const RECORDS = [
@@ -78,11 +79,15 @@ Page({
     this.setData({
       appealInput: ""
     });
-    wx.showModal({
-      title: "申诉已记录",
-      content: "第一版先做本地记录和流程入口，后续接入后台后会同步处理进度。",
-      confirmText: "知道了",
-      showCancel: false
+    cloudApi.submitWelfareAppeal({ content }).then(() => {
+      wx.showModal({
+        title: "申诉已记录",
+        content: "我们会在后台记录并复核异常加分、福利资格等问题。",
+        confirmText: "知道了",
+        showCancel: false
+      });
+    }).catch((error) => {
+      cloudApi.showErrorToast(error, "申诉提交失败");
     });
   }
 });

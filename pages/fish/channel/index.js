@@ -1,14 +1,40 @@
 const cloudApi = require("../../../utils/cloudApi");
 const {
+  CHANNELS,
   getChannelSummary,
   listPosts
 } = require("../../../utils/fishpond");
 
+function getChannel(id) {
+  return CHANNELS.find((channel) => channel.id === id) || CHANNELS[1];
+}
+
+function buildChannelSummary(channelId, posts) {
+  const channel = getChannel(channelId);
+  const channelPosts = posts || [];
+  const tagMap = {};
+
+  channelPosts.forEach((post) => {
+    (post.tags || []).forEach((tag) => {
+      tagMap[tag] = (tagMap[tag] || 0) + 1;
+    });
+  });
+
+  return Object.assign({}, channel, {
+    postCount: channelPosts.length,
+    commentCount: channelPosts.reduce((sum, post) => sum + Number(post.commentCount || (post.comments || []).length || 0), 0),
+    hotTags: Object.keys(tagMap)
+      .sort((first, second) => tagMap[second] - tagMap[first])
+      .slice(0, 6),
+    latestPosts: channelPosts.slice(0, 3)
+  });
+}
+
 Page({
   data: {
     channelId: "cup",
-    channel: getChannelSummary("cup"),
-    posts: listPosts("cup")
+    channel: buildChannelSummary("cup", []),
+    posts: []
   },
 
   onLoad(options) {
@@ -26,14 +52,22 @@ Page({
 
   refreshChannel(channelId) {
     this.setData({
-      channel: getChannelSummary(channelId),
-      posts: listPosts(channelId)
+      channel: buildChannelSummary(channelId, [])
     });
     cloudApi.listFishPosts({ channel: channelId }).then((res) => {
+      const posts = res.posts || [];
+
       this.setData({
-        posts: res.posts || []
+        channel: buildChannelSummary(channelId, posts),
+        posts
       });
     }).catch(() => {
+      const posts = listPosts(channelId);
+
+      this.setData({
+        channel: getChannelSummary(channelId),
+        posts
+      });
     });
   },
 

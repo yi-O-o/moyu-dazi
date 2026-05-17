@@ -59,7 +59,7 @@ Page({
       todayEarned: stats.earned,
       game: buildGameSummary(loadGameState()),
       meetupTabs: decorateMeetupTabs(this.data.meetupTab),
-      myMeetups: getMyMeetups(this.data.meetupTab),
+      myMeetups: [],
       myPosts: getMyPosts(),
       myComments: getMyComments(),
       myFavorites: getMyFavorites()
@@ -85,6 +85,9 @@ Page({
         myMeetups: res.meetups || []
       });
     }).catch(() => {
+      this.setData({
+        myMeetups: getMyMeetups(this.data.meetupTab)
+      });
     });
 
     cloudApi.getMyFish().then((res) => {
@@ -111,13 +114,16 @@ Page({
     this.setData({
       meetupTab: tab,
       meetupTabs: decorateMeetupTabs(tab),
-      myMeetups: getMyMeetups(tab)
+      myMeetups: []
     });
     cloudApi.getMyMeetups({ filter: tab }).then((res) => {
       this.setData({
         myMeetups: res.meetups || []
       });
     }).catch(() => {
+      this.setData({
+        myMeetups: getMyMeetups(tab)
+      });
     });
   },
 

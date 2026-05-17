@@ -67,6 +67,12 @@
   </view>
 </view>
 
+<view class="page detail-page" wx:elif="{{postLoading}}">
+  <view class="missing-card">
+    <text>动态加载中...</text>
+  </view>
+</view>
+
 <view class="page detail-page" wx:else>
   <view class="missing-card">
     <text>这条动态走丢了。</text>

@@ -22,6 +22,7 @@ Page({
   data: {
     postId: null,
     post: null,
+    postLoading: true,
     commentInput: "",
     pointFeedback: null
   },
@@ -41,13 +42,19 @@ Page({
     if (!this.data.postId) return;
 
     this.setData({
-      post: getPost(this.data.postId)
+      post: null,
+      postLoading: true
     });
     cloudApi.getFishPost({ id: this.data.postId }).then((res) => {
       this.setData({
-        post: res.post
+        post: res.post,
+        postLoading: false
       });
     }).catch(() => {
+      this.setData({
+        post: getPost(this.data.postId),
+        postLoading: false
+      });
     });
   },
 
@@ -113,7 +120,15 @@ Page({
         icon: "none",
         duration: 1000
       });
-    }).catch(() => {
+    }).catch((error) => {
+      if (!cloudApi.shouldUseLocalFallback(error)) {
+        this.setData({
+          commentInput: text
+        });
+        cloudApi.showErrorToast(error, "评论失败");
+        return;
+      }
+
       this.refreshPost();
       this.playPointFeedback(pointResult, "评论");
       wx.showToast({

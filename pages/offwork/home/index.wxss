@@ -214,6 +214,58 @@
   min-width: 0;
 }
 
+.location-pick {
+  height: 78rpx;
+  margin-top: 16rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #3f6f64;
+  background: #eef9f6;
+  border: 2rpx solid #b8d8d1;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.location-result {
+  margin-top: 12rpx;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  background: #fffaf4;
+  border: 2rpx solid rgba(234, 217, 201, 0.88);
+}
+
+.location-name {
+  display: block;
+  color: #3a2a22;
+  font-size: 26rpx;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.location-address,
+.meetup-address {
+  display: block;
+  margin-top: 10rpx;
+  color: #8a7467;
+  font-size: 23rpx;
+  line-height: 1.45;
+}
+
+.manual-location-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48rpx;
+  margin-top: 10rpx;
+  color: #7d6252;
+  font-size: 23rpx;
+  font-weight: 800;
+}
+
 .safe-tip {
   display: block;
   margin-top: 14rpx;
@@ -432,7 +484,8 @@
 
 .join-button,
 .cancel-button,
-.detail-button {
+.detail-button,
+.map-button {
   flex: 0 0 auto;
   min-width: 132rpx;
   height: 64rpx;
@@ -457,6 +510,12 @@
 .detail-button {
   min-width: 104rpx;
   color: #b65f2a;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.map-button {
+  min-width: 104rpx;
+  color: #3f6f64;
   background: rgba(255, 255, 255, 0.72);
 }
 

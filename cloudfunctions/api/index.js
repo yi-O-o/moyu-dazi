@@ -65,6 +65,14 @@ function fail(code, message) {
   return { ok: false, code, message };
 }
 
+class PublicError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+    this.publicMessage = message;
+  }
+}
+
 function dateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -75,6 +83,80 @@ function dateKey(date = new Date()) {
 
 function limitText(value, max, fallback = "") {
   return String(value || fallback).trim().slice(0, max);
+}
+
+function guessImageContentType(fileId) {
+  const lower = String(fileId || "").split("?")[0].toLowerCase();
+
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".gif")) return "image/gif";
+
+  return "image/jpeg";
+}
+
+function isSafetyPass(res) {
+  const result = res && res.result ? res.result : null;
+
+  if (result && result.suggest) {
+    return result.suggest === "pass";
+  }
+
+  return !res || res.errCode === 0 || res.errcode === 0;
+}
+
+async function checkTextSafety(openid, content, label) {
+  const text = limitText(content, 2500);
+  if (!text) return;
+
+  try {
+    const res = await cloud.openapi.security.msgSecCheck({
+      version: 2,
+      scene: 2,
+      openid,
+      content: text
+    });
+
+    if (!isSafetyPass(res)) {
+      throw new PublicError("CONTENT_RISK", `${label}包含不适合发布的内容`);
+    }
+  } catch (error) {
+    if (error instanceof PublicError) throw error;
+    console.error("msgSecCheck failed", label, error);
+    throw new PublicError("REVIEW_FAILED", "内容审核暂时不可用，请稍后再试");
+  }
+}
+
+async function checkImageSafety(openid, images) {
+  const fileIds = (images || [])
+    .filter((image) => String(image || "").indexOf("cloud://") === 0)
+    .slice(0, 6);
+
+  for (const fileId of fileIds) {
+    try {
+      const file = await cloud.downloadFile({ fileID: fileId });
+      const res = await cloud.openapi.security.imgSecCheck({
+        media: {
+          contentType: guessImageContentType(fileId),
+          value: file.fileContent
+        }
+      });
+
+      if (!isSafetyPass(res)) {
+        throw new PublicError("CONTENT_RISK", "图片包含不适合发布的内容");
+      }
+    } catch (error) {
+      if (error instanceof PublicError) throw error;
+      console.error("imgSecCheck failed", openid, fileId, error);
+      throw new PublicError("REVIEW_FAILED", "图片审核暂时不可用，请稍后再试");
+    }
+  }
+}
+
+async function checkTextFields(openid, fields) {
+  for (const item of fields) {
+    await checkTextSafety(openid, item.content, item.label);
+  }
 }
 
 function formatTime(value) {
@@ -269,10 +351,19 @@ function decorateMeetup(meetup, openid) {
   const joinedByMe = joinedBy.indexOf(openid) >= 0;
   const isMine = meetup._openid === openid;
   const remain = Math.max(0, Number(meetup.size || 0) - joinedBy.length);
+  const hasLocationMap = meetup.latitude !== null
+    && meetup.latitude !== undefined
+    && meetup.latitude !== ""
+    && meetup.longitude !== null
+    && meetup.longitude !== undefined
+    && meetup.longitude !== ""
+    && Number.isFinite(Number(meetup.latitude))
+    && Number.isFinite(Number(meetup.longitude));
 
   return Object.assign({}, meetup, {
     id: meetup._id,
     typeTitle: TYPE_TITLES[meetup.type] || "约局",
+    hasLocationMap,
     joined: joinedBy.length,
     joinedByMe,
     isMine,
@@ -308,6 +399,13 @@ async function userGet(openid, data) {
 }
 
 async function userUpsert(openid, data) {
+  const profile = data.profile || data;
+
+  await checkTextFields(openid, [
+    { label: "昵称", content: profile.nickName },
+    { label: "头像文字", content: profile.avatarText }
+  ]);
+
   const user = await ensureUser(openid, data.profile || data);
   return ok({ user: decorateUser(user, openid) });
 }
@@ -353,8 +451,18 @@ async function fishGet(openid, data) {
 
 async function fishCreate(openid, data) {
   const content = limitText(data.content, 200);
-  const images = Array.isArray(data.images) ? data.images.slice(0, 6) : [];
+  const rawImages = Array.isArray(data.images) ? data.images.slice(0, 6) : [];
+  const images = rawImages.filter((image) => String(image || "").indexOf("cloud://") === 0);
+  if (rawImages.length !== images.length) return fail("BAD_REQUEST", "图片上传失败，请重新选择图片");
   if (!content && !images.length) return fail("BAD_REQUEST", "写一句话或加一张图");
+
+  await checkTextFields(openid, [
+    { label: "动态内容", content },
+    { label: "动态标题", content: data.title },
+    { label: "动态心情", content: data.mood },
+    { label: "动态标签", content: Array.isArray(data.tags) ? data.tags.join(" ") : "" }
+  ]);
+  await checkImageSafety(openid, images);
 
   const user = await ensureUser(openid, data.profile || {});
   const title = limitText(data.title, 24, content.split(/\n/)[0].slice(0, 24) || "今天的上班小动态");
@@ -374,6 +482,8 @@ async function fishCreate(openid, data) {
     comments: [],
     deleted: false,
     reported: false,
+    reviewStatus: "pass",
+    reviewedAt: db.serverDate(),
     createdAt: db.serverDate(),
     updatedAt: db.serverDate()
   };
@@ -455,6 +565,8 @@ async function fishComment(openid, data) {
   const content = limitText(data.content, 80);
   if (!id || !content) return fail("BAD_REQUEST", "先写一句评论");
 
+  await checkTextSafety(openid, content, "评论");
+
   const user = await ensureUser(openid, data.profile || {});
   const comment = {
     id: `${Date.now()}_${openid.slice(-6)}`,
@@ -462,6 +574,7 @@ async function fishComment(openid, data) {
     author: user.nickName || "我",
     avatarText: user.avatarText || "我",
     content,
+    reviewStatus: "pass",
     createdAt: db.serverDate()
   };
 
@@ -528,7 +641,26 @@ async function meetupCreate(openid, data) {
   const title = limitText(data.title, 24);
   const time = limitText(data.time, 12);
   const location = limitText(data.location, 24);
+  const locationAddress = limitText(data.locationAddress, 80);
+  const latitude = Number(data.latitude);
+  const longitude = Number(data.longitude);
+  const hasLocationMap = data.latitude !== null
+    && data.latitude !== undefined
+    && data.latitude !== ""
+    && data.longitude !== null
+    && data.longitude !== undefined
+    && data.longitude !== ""
+    && Number.isFinite(latitude)
+    && Number.isFinite(longitude);
   if (!title || !time || !location) return fail("BAD_REQUEST", "标题、时间、地点都写一下");
+
+  await checkTextFields(openid, [
+    { label: "约局标题", content: title },
+    { label: "约局时间", content: time },
+    { label: "约局地点", content: location },
+    { label: "约局地址", content: locationAddress },
+    { label: "约局说明", content: data.desc }
+  ]);
 
   const user = await ensureUser(openid, data.profile || {});
   const meetup = {
@@ -539,11 +671,16 @@ async function meetupCreate(openid, data) {
     title,
     time,
     location,
+    locationAddress,
+    latitude: hasLocationMap ? latitude : null,
+    longitude: hasLocationMap ? longitude : null,
     size: Math.min(20, Math.max(2, Number(data.size) || 2)),
     desc: limitText(data.desc, 120),
     joinedBy: [openid],
     comments: [],
     deleted: false,
+    reviewStatus: "pass",
+    reviewedAt: db.serverDate(),
     createdAt: db.serverDate(),
     updatedAt: db.serverDate()
   };
@@ -600,12 +737,15 @@ async function meetupComment(openid, data) {
   const text = limitText(data.text || data.content, 60);
   if (!id || !text) return fail("BAD_REQUEST", "先写一句评论");
 
+  await checkTextSafety(openid, text, "评论");
+
   const user = await ensureUser(openid, data.profile || {});
   const comment = {
     id: `${Date.now()}_${openid.slice(-6)}`,
     _openid: openid,
     author: user.nickName || "我",
     text,
+    reviewStatus: "pass",
     createdAt: db.serverDate()
   };
   await db.collection(COLLECTIONS.meetups).doc(id).update({
@@ -649,6 +789,8 @@ async function welfareAppeal(openid, data) {
   const content = limitText(data.content, 120);
   if (!content) return fail("BAD_REQUEST", "先写一下问题");
 
+  await checkTextSafety(openid, content, "反馈内容");
+
   const user = await ensureUser(openid, data.profile || {});
   const res = await db.collection(COLLECTIONS.welfareAppeals).add({
     data: {
@@ -656,6 +798,7 @@ async function welfareAppeal(openid, data) {
       nickName: user.nickName || "摸鱼搭子",
       content,
       status: "pending",
+      reviewStatus: "pass",
       createdAt: db.serverDate(),
       updatedAt: db.serverDate()
     }
@@ -699,6 +842,10 @@ exports.main = async (event = {}) => {
   try {
     return await handler(openid, data);
   } catch (error) {
+    if (error instanceof PublicError) {
+      return fail(error.code, error.publicMessage);
+    }
+
     console.error(action, error);
     return fail("SERVER_ERROR", error.message || "服务暂时不可用");
   }

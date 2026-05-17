@@ -26,6 +26,44 @@ function getChannelTitle(channelId) {
   return channel.title;
 }
 
+function buildChannelCards(posts) {
+  return CHANNELS.filter((channel) => channel.id !== "all").map((channel) => {
+    const channelPosts = (posts || []).filter((post) => post.channel === channel.id && !post.reported);
+    const commentCount = channelPosts.reduce((sum, post) => sum + Number(post.commentCount || (post.comments || []).length || 0), 0);
+
+    return Object.assign({}, channel, {
+      postCount: channelPosts.length,
+      commentCount
+    });
+  });
+}
+
+function buildHighlights(posts) {
+  const visiblePosts = (posts || []).filter((post) => !post.reported);
+  const tagMap = {};
+
+  visiblePosts.forEach((post) => {
+    (post.tags || []).forEach((tag) => {
+      tagMap[tag] = (tagMap[tag] || 0) + 1;
+    });
+  });
+
+  return {
+    hotTags: Object.keys(tagMap)
+      .sort((first, second) => tagMap[second] - tagMap[first])
+      .slice(0, 6),
+    featuredPosts: visiblePosts
+      .slice()
+      .sort((first, second) => {
+        const firstScore = Number(first.likeCount || 0) + Number(first.favoriteCount || 0) * 2 + Number(first.commentCount || 0) * 2 + Number(first.sameCount || 0);
+        const secondScore = Number(second.likeCount || 0) + Number(second.favoriteCount || 0) * 2 + Number(second.commentCount || 0) * 2 + Number(second.sameCount || 0);
+
+        return secondScore - firstScore;
+      })
+      .slice(0, 3)
+  };
+}
+
 function decorateVisiblePosts(posts, openCommentId) {
   return posts.map((post) => {
     const id = post.id || post._id;
@@ -52,9 +90,9 @@ function getReactionToast(type) {
 Page({
   data: {
     publishChannels: getPublishChannels("cup"),
-    channelCards: listChannelSummaries(),
-    highlights: getFishpondHighlights(),
-    posts: listPosts("all"),
+    channelCards: buildChannelCards([]),
+    highlights: buildHighlights([]),
+    posts: [],
     game: buildGameSummary(loadGameState()),
     publishOpen: false,
     selectedPublishChannelTitle: getChannelTitle("cup"),
@@ -79,9 +117,6 @@ Page({
 
   refreshPosts() {
     this.setData({
-      channelCards: listChannelSummaries(),
-      highlights: getFishpondHighlights(),
-      posts: decorateVisiblePosts(listPosts("all"), this.data.commentPostId),
       game: buildGameSummary(loadGameState())
     });
     this.refreshCloudPosts();
@@ -89,10 +124,21 @@ Page({
 
   refreshCloudPosts() {
     cloudApi.listFishPosts({ channel: "all" }).then((res) => {
+      const posts = decorateVisiblePosts(res.posts || [], this.data.commentPostId);
+
       this.setData({
-        posts: decorateVisiblePosts(res.posts || [], this.data.commentPostId)
+        channelCards: buildChannelCards(posts),
+        highlights: buildHighlights(posts),
+        posts
       });
     }).catch(() => {
+      const posts = decorateVisiblePosts(listPosts("all"), this.data.commentPostId);
+
+      this.setData({
+        channelCards: listChannelSummaries(),
+        highlights: getFishpondHighlights(),
+        posts
+      });
     });
   },
 
@@ -217,7 +263,18 @@ Page({
     }).then(() => {
       this.refreshCloudPosts();
       this.showPointToast(pointResult, "发布动态");
-    }).catch(() => {
+    }).catch((error) => {
+      if (!cloudApi.shouldUseLocalFallback(error)) {
+        this.setData({
+          publishOpen: true,
+          publishChannels: getPublishChannels(form.channel || "cup"),
+          selectedPublishChannelTitle: getChannelTitle(form.channel || "cup"),
+          form
+        });
+        cloudApi.showErrorToast(error, "动态发布失败");
+        return;
+      }
+
       createPost(form);
       this.refreshPosts();
       this.showPointToast(pointResult, "发布动态");
@@ -298,7 +355,16 @@ Page({
     cloudApi.addFishComment({ id, content: text }).then(() => {
       this.refreshCloudPosts();
       this.showPointToast(pointResult, "评论");
-    }).catch(() => {
+    }).catch((error) => {
+      if (!cloudApi.shouldUseLocalFallback(error)) {
+        this.setData({
+          commentPostId: id,
+          commentInput: text
+        });
+        cloudApi.showErrorToast(error, "评论失败");
+        return;
+      }
+
       this.refreshPosts();
       this.showPointToast(pointResult, "评论");
     });

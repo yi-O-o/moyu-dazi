@@ -69,44 +69,27 @@
     </view>
   </view>
 
-  <view class="growth-panel">
-    <view>
-      <text class="growth-kicker">宠物成长积分</text>
-      <text class="growth-title">Lv.{{game.level.level}} {{game.level.title}}</text>
-      <text class="growth-desc">总积分 {{game.points}}，今日 +{{game.todayPoints}}。升级后可解锁装扮、福利池和搭子圈身份。</text>
+  <!-- 首页核心入口前置：四大块、玄学、下班许愿池、下班安排 -->
+  <view class="quick-grid">
+    <view class="quick-card primary" bindtap="goPet">
+      <text class="quick-icon">宠</text>
+      <text class="quick-title">宠物小窝</text>
+      <text class="quick-desc">看看小搭子在干嘛</text>
     </view>
-    <view class="growth-meter">
-      <view class="growth-fill" style="width: {{game.level.progress}}%;"></view>
+    <view class="quick-card" bindtap="quickFishBreak">
+      <text class="quick-icon">鱼</text>
+      <text class="quick-title">摸鱼一下</text>
+      <text class="quick-desc">短暂休息不内疚</text>
     </view>
-    <view class="growth-meta">
-      <text>下一阶：{{game.level.nextTitle}}</text>
-      <text>{{game.level.nextPoints}} 分</text>
+    <view class="quick-card" bindtap="goFish">
+      <text class="quick-icon">鱼</text>
+      <text class="quick-title">摸鱼广场</text>
+      <text class="quick-desc">看看大家上班动态</text>
     </view>
-  </view>
-
-  <view class="wish-panel">
-    <view class="panel-head">
-      <view>
-        <text class="panel-kicker">下班许愿池</text>
-        <text class="panel-title">今天下班想做什么</text>
-      </view>
-      <text class="panel-tag">首次 +1</text>
-    </view>
-    <view class="wish-input-row">
-      <input class="wish-input" maxlength="24" placeholder="例如：吃火锅、打球、回家躺平" value="{{wishInput}}" bindinput="handleWishInput" />
-      <view class="wish-button" bindtap="submitWish">放进去</view>
-    </view>
-    <view class="wish-list" wx:if="{{game.wishes.length}}">
-      <view class="wish-chip" wx:for="{{game.wishes}}" wx:key="id">
-        <text>{{item.text}}</text>
-        <text class="wish-share" bindtap="shareWishToFish" data-text="{{item.text}}">发鱼塘</text>
-        <text class="wish-meetup" bindtap="turnWishToMeetup" data-text="{{item.text}}">转约局</text>
-        <text class="wish-delete" bindtap="deleteWish" data-id="{{item.id}}">×</text>
-      </view>
-    </view>
-    <view class="wish-empty" wx:else>
-      <text class="wish-empty-title">愿望池还空着</text>
-      <text class="wish-empty-desc">写一个很小的下班安排也可以，比如买杯奶茶、散步十分钟、早点回家。</text>
+    <view class="quick-card warm" bindtap="goOffwork">
+      <text class="quick-icon">约</text>
+      <text class="quick-title">下班找搭子</text>
+      <text class="quick-desc">把生活接回来</text>
     </view>
   </view>
 
@@ -133,26 +116,29 @@
     </view>
   </view>
 
-  <view class="quick-grid">
-    <view class="quick-card primary" bindtap="goPet">
-      <text class="quick-icon">宠</text>
-      <text class="quick-title">宠物小窝</text>
-      <text class="quick-desc">看看小搭子在干嘛</text>
+  <view class="wish-panel">
+    <view class="panel-head">
+      <view>
+        <text class="panel-kicker">下班许愿池</text>
+        <text class="panel-title">今天下班想做什么</text>
+      </view>
+      <text class="panel-tag">首次 +1</text>
     </view>
-    <view class="quick-card" bindtap="quickFishBreak">
-      <text class="quick-icon">鱼</text>
-      <text class="quick-title">摸鱼一下</text>
-      <text class="quick-desc">短暂休息不内疚</text>
+    <view class="wish-input-row">
+      <input class="wish-input" maxlength="24" placeholder="例如：吃火锅、打球、回家躺平" value="{{wishInput}}" bindinput="handleWishInput" />
+      <view class="wish-button" bindtap="submitWish">放进去</view>
     </view>
-    <view class="quick-card" bindtap="goFish">
-      <text class="quick-icon">鱼</text>
-      <text class="quick-title">摸鱼广场</text>
-      <text class="quick-desc">看看大家上班动态</text>
+    <view class="wish-list" wx:if="{{game.wishes.length}}">
+      <view class="wish-chip" wx:for="{{game.wishes}}" wx:key="id">
+        <text>{{item.text}}</text>
+        <text class="wish-share" bindtap="shareWishToFish" data-text="{{item.text}}">发鱼塘</text>
+        <text class="wish-meetup" bindtap="turnWishToMeetup" data-text="{{item.text}}">转约局</text>
+        <text class="wish-delete" bindtap="deleteWish" data-id="{{item.id}}">×</text>
+      </view>
     </view>
-    <view class="quick-card warm" bindtap="goOffwork">
-      <text class="quick-icon">约</text>
-      <text class="quick-title">下班找搭子</text>
-      <text class="quick-desc">把生活接回来</text>
+    <view class="wish-empty" wx:else>
+      <text class="wish-empty-title">愿望池还空着</text>
+      <text class="wish-empty-desc">写一个很小的下班安排也可以，比如买杯奶茶、散步十分钟、早点回家。</text>
     </view>
   </view>
 

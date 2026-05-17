@@ -39,7 +39,17 @@
         <input class="meetup-input half" maxlength="12" placeholder="时间，如 19:30" value="{{form.time}}" bindinput="handleTimeInput" />
         <input class="meetup-input half" type="number" maxlength="2" placeholder="人数" value="{{form.size}}" bindinput="handleSizeInput" />
       </view>
-      <input class="meetup-input" maxlength="24" placeholder="地点，比如：公司附近 / 地铁口" value="{{form.location}}" bindinput="handleLocationInput" />
+      <view class="location-pick" bindtap="chooseMeetupLocation">
+        <text>{{form.location ? "重新选择地图地点" : "用微信地图选择地点"}}</text>
+      </view>
+      <view class="location-result" wx:if="{{form.location}}">
+        <text class="location-name">{{form.location}}</text>
+        <text class="location-address" wx:if="{{form.locationAddress}}">{{form.locationAddress}}</text>
+      </view>
+      <view class="manual-location-toggle" bindtap="toggleManualLocation" wx:if="{{!form.location || manualLocationOpen}}">
+        {{manualLocationOpen ? "收起手动填写" : "地图里搜不到？手动填写地点"}}
+      </view>
+      <input class="meetup-input" wx:if="{{manualLocationOpen}}" maxlength="24" placeholder="手动填写地点，比如：公司附近 / 地铁口" value="{{form.location}}" bindinput="handleLocationInput" />
       <textarea class="meetup-textarea" maxlength="120" placeholder="补充说明：AA、是否新手友好、想聊什么都可以" value="{{form.desc}}" bindinput="handleDescInput"></textarea>
       <text class="safe-tip">线下见面注意安全，建议选择公开场所，先在评论里确认细节。</text>
       <view class="submit-meetup" bindtap="publishMeetup">发布约局</view>
@@ -70,8 +80,10 @@
         <text>{{item.location}}</text>
         <text>{{item.joined}}/{{item.size}} 人</text>
       </view>
+      <text class="meetup-address" wx:if="{{item.locationAddress}}">{{item.locationAddress}}</text>
       <view class="meetup-footer">
         <text class="meetup-author">由 {{item.author}} 发起 · {{item.createdAt}}</text>
+        <view class="map-button" wx:if="{{item.hasLocationMap}}" bindtap="openMeetupLocation" data-id="{{item.id}}">导航</view>
         <view class="detail-button" bindtap="goMeetupDetail" data-id="{{item.id}}">详情</view>
         <view class="{{item.joinButtonClass}}" bindtap="joinMeetup" data-id="{{item.id}}">
           {{item.joinText}}
