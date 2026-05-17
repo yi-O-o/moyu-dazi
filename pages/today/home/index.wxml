@@ -76,10 +76,10 @@
       <text class="quick-title">宠物小窝</text>
       <text class="quick-desc">看看小搭子在干嘛</text>
     </view>
-    <view class="quick-card" bindtap="quickFishBreak">
-      <text class="quick-icon">鱼</text>
-      <text class="quick-title">摸鱼一下</text>
-      <text class="quick-desc">短暂休息不内疚</text>
+    <view class="quick-card" bindtap="openFishPublish">
+      <text class="quick-icon">泡</text>
+      <text class="quick-title">冒个泡</text>
+      <text class="quick-desc">晒一下上班现场</text>
     </view>
     <view class="quick-card" bindtap="goFish">
       <text class="quick-icon">鱼</text>

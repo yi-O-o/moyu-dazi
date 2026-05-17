@@ -12,6 +12,8 @@ const {
   togglePostReaction
 } = require("../../../utils/fishpond");
 
+const OPEN_PUBLISH_STORAGE_KEY = "openFishPublishOnShow";
+
 function getPublishChannels(selectedChannel) {
   return CHANNELS.filter((channel) => channel.id !== "all").map((channel) => {
     return Object.assign({}, channel, {
@@ -109,6 +111,7 @@ Page({
 
   onShow() {
     this.refreshPosts();
+    this.openPublishFromHome();
   },
 
   onUnload() {
@@ -147,6 +150,20 @@ Page({
       publishOpen: true,
       commentPostId: null
     });
+  },
+
+  openPublishFromHome() {
+    let shouldOpen = false;
+
+    try {
+      shouldOpen = !!wx.getStorageSync(OPEN_PUBLISH_STORAGE_KEY);
+      if (shouldOpen) wx.removeStorageSync(OPEN_PUBLISH_STORAGE_KEY);
+    } catch (error) {
+    }
+
+    if (shouldOpen) {
+      this.openPublish();
+    }
   },
 
   closePublish() {

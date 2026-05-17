@@ -11,6 +11,8 @@ const {
 const { createPost } = require("../../../utils/fishpond");
 const { createMeetup } = require("../../../utils/meetups");
 
+const OPEN_FISH_PUBLISH_KEY = "openFishPublishOnShow";
+
 const MYSTIC_SIGNS = [
   {
     title: "宜低调搬砖",
@@ -193,6 +195,17 @@ Page({
     });
   },
 
+  openFishPublish() {
+    try {
+      wx.setStorageSync(OPEN_FISH_PUBLISH_KEY, true);
+    } catch (error) {
+    }
+
+    wx.switchTab({
+      url: "/pages/fish/home/index"
+    });
+  },
+
   goSalary() {
     wx.navigateTo({
       url: "/pages/work/salary/index"
@@ -241,13 +254,6 @@ Page({
         petActionClass: "idle"
       });
     }, 900);
-  },
-
-  quickFishBreak() {
-    const result = addPoints("fish_break", 2, { dailyLimit: 1 });
-
-    this.refreshGame();
-    this.showPointToast(result, "合理摸鱼");
   },
 
   handleWishInput(event) {
