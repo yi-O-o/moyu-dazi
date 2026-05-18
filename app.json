@@ -19,6 +19,7 @@
     "backgroundColor": "#FFF8EF",
     "backgroundTextStyle": "dark"
   },
+  "lazyCodeLoading": "requiredComponents",
   "permission": {
     "scope.userLocation": {
       "desc": "用于发布下班约局时选择集合地点，方便报名用户导航。"
