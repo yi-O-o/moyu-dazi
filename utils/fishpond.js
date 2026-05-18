@@ -1,4 +1,5 @@
 const STORAGE_KEY = "workBuddyFishpondState";
+const { loadUserProfile } = require("./profile");
 
 const CHANNELS = [
   {
@@ -97,7 +98,8 @@ function decoratePost(post) {
   const channel = getChannel(post.channel);
   const comments = (post.comments || []).map((comment) => {
     return Object.assign({}, comment, {
-      avatar: String(comment.author || "评").slice(0, 1)
+      avatar: comment.avatarText || String(comment.author || "评").slice(0, 1),
+      avatarUrl: comment.avatarUrl || ""
     });
   });
   const tags = post.tags || [];
@@ -117,7 +119,8 @@ function decoratePost(post) {
 
   return Object.assign({}, post, {
     channelTitle: channel.title,
-    avatar: String(post.author || "鱼").slice(0, 1),
+    avatar: post.avatarText || String(post.author || "鱼").slice(0, 1),
+    avatarUrl: post.avatarUrl || "",
     tags,
     images,
     imageTiles,
@@ -216,7 +219,7 @@ function getMyPosts() {
   const state = loadFishpondState();
 
   return (state.posts || [])
-    .filter((post) => post.author === "我" && !post.reported)
+    .filter((post) => (post.isMine || post.author === "我") && !post.reported)
     .map(decoratePost);
 }
 
@@ -245,7 +248,7 @@ function getMyComments() {
     if (post.reported) return;
 
     (post.comments || []).forEach((comment) => {
-      if (comment.author !== "我") return;
+      if (!comment.isMine && comment.author !== "我") return;
 
       const channel = getChannel(post.channel);
       items.push({
@@ -263,6 +266,7 @@ function getMyComments() {
 
 function createPost(input) {
   const state = loadFishpondState();
+  const profile = loadUserProfile();
   const content = String(input.content || "").trim().slice(0, 200);
   const autoTitle = content.split(/\n/)[0].slice(0, 24) || "今天的上班小动态";
   const tags = String(input.tagInput || "")
@@ -278,7 +282,10 @@ function createPost(input) {
     tags,
     images: (input.images || []).slice(0, 6),
     mood: input.mood || "还行",
-    author: "我",
+    author: profile.nickName,
+    avatarText: profile.avatarText,
+    avatarUrl: profile.avatarUrl,
+    isMine: true,
     createdAt: "刚刚",
     likeCount: 0,
     favoriteCount: 0,
@@ -300,7 +307,7 @@ function deletePost(postId) {
   const beforeCount = (state.posts || []).length;
 
   state.posts = (state.posts || []).filter((post) => {
-    return !(Number(post.id) === targetId && post.author === "我");
+    return !(Number(post.id) === targetId && (post.isMine || post.author === "我"));
   });
 
   saveFishpondState(state);
@@ -348,6 +355,7 @@ function addComment(postId, content) {
   if (!text) return null;
 
   const state = loadFishpondState();
+  const profile = loadUserProfile();
   const targetId = Number(postId);
   let comment = null;
 
@@ -356,7 +364,10 @@ function addComment(postId, content) {
 
     comment = {
       id: Date.now(),
-      author: "我",
+      author: profile.nickName,
+      avatarText: profile.avatarText,
+      avatarUrl: profile.avatarUrl,
+      isMine: true,
       content: text
     };
 

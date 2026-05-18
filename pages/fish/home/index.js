@@ -1,5 +1,6 @@
 const { addPoints, buildGameSummary, loadGameState } = require("../../../utils/gamification");
 const cloudApi = require("../../../utils/cloudApi");
+const { getCloudProfilePayload } = require("../../../utils/profile");
 const {
   CHANNELS,
   addComment,
@@ -69,7 +70,7 @@ function buildHighlights(posts) {
 function decorateVisiblePosts(posts, openCommentId) {
   return posts.map((post) => {
     const id = post.id || post._id;
-    const canDelete = post.isMine || post.author === "我" || post.author === "摸鱼搭子";
+    const canDelete = post.isMine || post.author === "我";
 
     return Object.assign({}, post, {
       id,
@@ -276,7 +277,10 @@ Page({
       }
     });
     this.uploadPublishImages(form.images || []).then((images) => {
-      return cloudApi.createFishPost(Object.assign({}, form, { images }));
+      return cloudApi.createFishPost(Object.assign({}, form, {
+        images,
+        profile: getCloudProfilePayload()
+      }));
     }).then(() => {
       this.refreshCloudPosts();
       this.showPointToast(pointResult, "发布动态");
@@ -369,7 +373,11 @@ Page({
       commentPostId: null,
       commentInput: ""
     });
-    cloudApi.addFishComment({ id, content: text }).then(() => {
+    cloudApi.addFishComment({
+      id,
+      content: text,
+      profile: getCloudProfilePayload()
+    }).then(() => {
       this.refreshCloudPosts();
       this.showPointToast(pointResult, "评论");
     }).catch((error) => {
@@ -399,9 +407,16 @@ Page({
 
   goUserProfile(event) {
     const author = event.currentTarget.dataset.author || "我";
+    const openid = event.currentTarget.dataset.openid || "";
+    const avatarUrl = event.currentTarget.dataset.avatarUrl || "";
+    const query = [
+      `author=${encodeURIComponent(author)}`,
+      openid ? `openid=${encodeURIComponent(openid)}` : "",
+      avatarUrl ? `avatarUrl=${encodeURIComponent(avatarUrl)}` : ""
+    ].filter(Boolean).join("&");
 
     wx.navigateTo({
-      url: `/pages/profile/user/index?author=${encodeURIComponent(author)}`
+      url: `/pages/profile/user/index?${query}`
     });
   },
 

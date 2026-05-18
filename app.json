@@ -7,10 +7,9 @@
     "pages/fish/channel/index",
     "pages/fish/detail/index",
     "pages/pet/home/index",
-    "pages/work/salary/index",
+    "pages/salary/index",
     "pages/offwork/detail/index",
-    "pages/profile/user/index",
-    "pages/profile/welfare/index"
+    "pages/profile/user/index"
   ],
   "window": {
     "navigationBarTitleText": "摸鱼搭子",
@@ -36,19 +35,27 @@
     "list": [
       {
         "pagePath": "pages/today/home/index",
-        "text": "今日"
+        "text": "今日",
+        "iconPath": "assets/tab/work-normal.png",
+        "selectedIconPath": "assets/tab/work-active.png"
       },
       {
         "pagePath": "pages/fish/home/index",
-        "text": "鱼塘"
+        "text": "鱼塘",
+        "iconPath": "assets/tab/fish-normal.png",
+        "selectedIconPath": "assets/tab/fish-active.png"
       },
       {
         "pagePath": "pages/offwork/home/index",
-        "text": "下班"
+        "text": "下班",
+        "iconPath": "assets/tab/meetup-normal.png",
+        "selectedIconPath": "assets/tab/meetup-active.png"
       },
       {
         "pagePath": "pages/profile/home/index",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/tab/profile-normal.png",
+        "selectedIconPath": "assets/tab/profile-active.png"
       }
     ]
   },

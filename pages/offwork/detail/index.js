@@ -1,5 +1,6 @@
 const { addPoints } = require("../../../utils/gamification");
 const cloudApi = require("../../../utils/cloudApi");
+const { getCloudProfilePayload } = require("../../../utils/profile");
 const {
   addMeetupComment,
   cancelMeetup: cancelMeetupById,
@@ -161,7 +162,11 @@ Page({
     this.setData({
       commentInput: ""
     });
-    cloudApi.addMeetupComment({ id: this.data.meetupId, text }).then(() => {
+    cloudApi.addMeetupComment({
+      id: this.data.meetupId,
+      text,
+      profile: getCloudProfilePayload()
+    }).then(() => {
       this.refreshMeetup();
       this.showPointToast(pointResult, "评论约局");
     }).catch((error) => {

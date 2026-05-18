@@ -1,5 +1,6 @@
 const { addPoints } = require("../../../utils/gamification");
 const cloudApi = require("../../../utils/cloudApi");
+const { getCloudProfilePayload } = require("../../../utils/profile");
 const {
   TYPES,
   addMeetupComment,
@@ -244,7 +245,9 @@ Page({
         desc: ""
       }
     });
-    cloudApi.createMeetup(form).then(() => {
+    cloudApi.createMeetup(Object.assign({}, form, {
+      profile: getCloudProfilePayload()
+    })).then(() => {
       this.refreshCloudMeetups();
       this.showPointToast(pointResult, "发布约局");
     }).catch((error) => {
@@ -386,7 +389,11 @@ Page({
     this.setData({
       [`commentInputs.${id}`]: ""
     });
-    cloudApi.addMeetupComment({ id, text }).then(() => {
+    cloudApi.addMeetupComment({
+      id,
+      text,
+      profile: getCloudProfilePayload()
+    }).then(() => {
       this.refreshCloudMeetups();
       this.showPointToast(pointResult, "评论约局");
     }).catch((error) => {

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "workBuddyMeetupState";
+const { loadUserProfile } = require("./profile");
 
 const TYPES = [
   { id: "all", title: "全部" },
@@ -26,7 +27,8 @@ function decorateType(activeType) {
 function decorateMeetup(meetup) {
   const type = getType(meetup.type);
   const remain = Math.max(0, meetup.size - meetup.joined);
-  const canCancel = meetup.joinedByMe && meetup.author !== "我";
+  const isMine = meetup.isMine || meetup.author === "我";
+  const canCancel = meetup.joinedByMe && !isMine;
   const hasLocationMap = meetup.latitude !== null
     && meetup.latitude !== undefined
     && meetup.latitude !== ""
@@ -44,7 +46,7 @@ function decorateMeetup(meetup) {
     joinText: meetup.joinedByMe ? "已报名" : remain > 0 ? "我想去" : "满员了",
     joinButtonClass: meetup.joinedByMe ? "join-button joined" : "join-button",
     cancelVisible: canCancel,
-    myRoleText: meetup.author === "我" ? "我发起" : meetup.joinedByMe ? "已报名" : "",
+    myRoleText: isMine ? "我发起" : meetup.joinedByMe ? "已报名" : "",
     commentCount: (meetup.comments || []).length,
     previewComments: (meetup.comments || []).slice(0, 2),
     cardClass: `meetup-card ${meetup.type}`
@@ -91,10 +93,12 @@ function getMyMeetups(filter = "all") {
 
   return (state.meetups || [])
     .filter((meetup) => {
-      if (filter === "created") return meetup.author === "我";
-      if (filter === "joined") return meetup.joinedByMe && meetup.author !== "我";
+      const isMine = meetup.isMine || meetup.author === "我";
 
-      return meetup.author === "我" || meetup.joinedByMe;
+      if (filter === "created") return isMine;
+      if (filter === "joined") return meetup.joinedByMe && !isMine;
+
+      return isMine || meetup.joinedByMe;
     })
     .map(decorateMeetup);
 }
@@ -109,6 +113,7 @@ function getMeetup(id) {
 
 function createMeetup(input) {
   const state = loadMeetupState();
+  const profile = loadUserProfile();
   const size = Math.min(20, Math.max(2, Number(input.size) || 2));
   const meetup = {
     id: Date.now(),
@@ -122,7 +127,10 @@ function createMeetup(input) {
     size,
     joined: 1,
     joinedByMe: true,
-    author: "我",
+    author: profile.nickName,
+    avatarText: profile.avatarText,
+    avatarUrl: profile.avatarUrl,
+    isMine: true,
     desc: String(input.desc || "").trim().slice(0, 120),
     createdAt: "刚刚",
     comments: []
@@ -169,7 +177,7 @@ function cancelMeetup(id) {
 
   state.meetups = (state.meetups || []).map((meetup) => {
     if (Number(meetup.id) !== targetId) return meetup;
-    if (meetup.author === "我") {
+    if (meetup.isMine || meetup.author === "我") {
       result = "owner";
       return meetup;
     }
@@ -195,6 +203,7 @@ function addMeetupComment(id, text) {
   if (!content) return { result: "empty" };
 
   const state = loadMeetupState();
+  const profile = loadUserProfile();
   const targetId = Number(id);
   let result = "missing";
 
@@ -206,7 +215,10 @@ function addMeetupComment(id, text) {
       comments: [
         {
           id: Date.now(),
-          author: "我",
+          author: profile.nickName,
+          avatarText: profile.avatarText,
+          avatarUrl: profile.avatarUrl,
+          isMine: true,
           text: content,
           createdAt: "刚刚"
         }

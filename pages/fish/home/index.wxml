@@ -92,7 +92,10 @@
 
     <view class="post-card" wx:for="{{posts}}" wx:for-item="post" wx:key="id" bindtap="goPostDetail" data-id="{{post.id}}">
       <view class="post-head">
-        <view class="avatar" catchtap="goUserProfile" data-author="{{post.author}}">{{post.avatar}}</view>
+        <view class="avatar" catchtap="goUserProfile" data-author="{{post.author}}" data-openid="{{post._openid}}" data-avatar-url="{{post.avatarUrl}}">
+          <image class="avatar-image" wx:if="{{post.avatarUrl}}" src="{{post.avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else>{{post.avatar}}</text>
+        </view>
         <view>
           <text class="post-author">{{post.author}}</text>
           <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>

@@ -208,7 +208,7 @@ Page({
 
   goSalary() {
     wx.navigateTo({
-      url: "/pages/work/salary/index"
+      url: "/pages/salary/index"
     });
   },
 

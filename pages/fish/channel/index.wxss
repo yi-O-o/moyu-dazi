@@ -171,8 +171,12 @@
 }
 
 .avatar {
+  flex: 0 0 58rpx;
   width: 58rpx;
   height: 58rpx;
+  min-width: 58rpx;
+  min-height: 58rpx;
+  box-sizing: border-box;
   border-radius: 8rpx;
   background: #fff0dc;
   color: #b65f2a;
@@ -181,6 +185,14 @@
   justify-content: center;
   font-size: 25rpx;
   font-weight: 800;
+  overflow: hidden;
+}
+
+.avatar-image {
+  flex: 0 0 58rpx;
+  width: 58rpx;
+  height: 58rpx;
+  display: block;
 }
 
 .post-author {

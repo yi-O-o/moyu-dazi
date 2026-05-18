@@ -1,10 +1,31 @@
 <view class="page profile-page">
   <view class="profile-head">
-    <view class="avatar">搭</view>
-    <view>
+    <view class="avatar-stack">
+      <button class="avatar avatar-button" open-type="chooseAvatar" bindchooseavatar="chooseAvatar">
+        <image class="avatar-image" wx:if="{{userProfile.avatarUrl}}" src="{{userProfile.avatarUrl}}" mode="aspectFill"></image>
+        <text wx:else>{{userProfile.avatarText}}</text>
+      </button>
+      <text class="avatar-tip">换</text>
+    </view>
+    <view class="profile-info">
       <text class="eyebrow">My Desk</text>
       <view class="name-row">
-        <text class="name">摸鱼搭子</text>
+        <view class="name-editor">
+          <input
+            class="name-input"
+            type="nickname"
+            placeholder="取个摸鱼昵称"
+            model:value="{{nickNameDraft}}"
+            bindfocus="handleNickNameFocus"
+            bindinput="handleNickNameInput"
+            bindchange="saveProfileFromInput"
+            bindconfirm="saveProfileFromInput"
+            bindblur="handleNickNameBlur"
+          />
+          <text class="name-edit-mark" bindtap="saveProfileFromInput">改</text>
+        </view>
+      </view>
+      <view class="status-row">
         <view class="status-badge" wx:if="{{game.todayMystic}}">
           <text>{{game.todayMystic.level}} · {{game.todayMystic.title}}</text>
         </view>
@@ -21,14 +42,6 @@
       <text class="pet-name">工位小搭子</text>
       <text class="pet-info">{{game.level.title}} · {{game.points}} 分，今天已经陪你慢慢坚持了 ¥{{todayEarned}}</text>
     </view>
-  </view>
-
-  <view class="panel welfare-entry" bindtap="goWelfare">
-    <view>
-      <text class="welfare-title">宠物福利池</text>
-      <text class="welfare-desc">查看等级资格、奖励边界和活动规则。</text>
-    </view>
-    <text class="welfare-arrow">›</text>
   </view>
 
   <view class="section-title">我的约局</view>
