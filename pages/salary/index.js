@@ -1,10 +1,71 @@
-const { getWorkStats, loadWorkConfig, saveWorkConfig } = require("../../../utils/workday");
+const DEFAULT_CONFIG = {
+  monthlySalary: 10000,
+  workDaysPerMonth: 22,
+  startTime: "09:00",
+  endTime: "18:00"
+};
+
+const DEFAULT_STATS = {
+  status: "before",
+  earned: "0.00",
+  dailyIncome: "454.55",
+  incomePerSecond: "0.0140",
+  workedTime: "00:00:00",
+  remainingTime: "09:00:00",
+  progressPercent: "0.0",
+  config: DEFAULT_CONFIG
+};
+
+let workdayApi = null;
+
+function copyConfig(config) {
+  return Object.assign({}, DEFAULT_CONFIG, config || {});
+}
+
+function localGetWorkStats(config) {
+  const mergedConfig = copyConfig(config);
+  const monthlySalary = Number(mergedConfig.monthlySalary) || DEFAULT_CONFIG.monthlySalary;
+  const workDaysPerMonth = Number(mergedConfig.workDaysPerMonth) || DEFAULT_CONFIG.workDaysPerMonth;
+  const dailyIncome = monthlySalary / Math.max(1, workDaysPerMonth);
+
+  return Object.assign({}, DEFAULT_STATS, {
+    dailyIncome: dailyIncome.toFixed(2),
+    config: mergedConfig
+  });
+}
+
+function getWorkdayApi() {
+  if (workdayApi) return workdayApi;
+
+  try {
+    const api = require("../../utils/workday");
+    workdayApi = {
+      loadWorkConfig: api.loadWorkConfig,
+      saveWorkConfig: api.saveWorkConfig,
+      getWorkStats: api.getWorkStats
+    };
+  } catch (error) {
+    workdayApi = {
+      loadWorkConfig() {
+        return DEFAULT_CONFIG;
+      },
+      saveWorkConfig(config) {
+        return copyConfig(config);
+      },
+      getWorkStats(config) {
+        return localGetWorkStats(config);
+      }
+    };
+  }
+
+  return workdayApi;
+}
 
 Page({
   data: {
-    config: loadWorkConfig(),
-    stats: getWorkStats(loadWorkConfig()),
-    form: loadWorkConfig(),
+    config: DEFAULT_CONFIG,
+    stats: DEFAULT_STATS,
+    form: DEFAULT_CONFIG,
     showSettings: false,
     coins: [
       { id: 1, className: "coin one", text: "¥" },
@@ -24,10 +85,15 @@ Page({
 
   onShow() {
     this.active = true;
-    const config = loadWorkConfig();
+
+    const api = getWorkdayApi();
+    const config = copyConfig(api.loadWorkConfig());
+    const stats = api.getWorkStats(config);
+
     this.setData({
       config,
-      form: config
+      form: copyConfig(config),
+      stats
     });
     this.startTicker();
   },
@@ -65,8 +131,9 @@ Page({
   },
 
   refreshStats() {
+    const stats = getWorkdayApi().getWorkStats(this.data.config);
     this.setData({
-      stats: getWorkStats(this.data.config)
+      stats
     });
   },
 
@@ -97,25 +164,28 @@ Page({
   openSettings() {
     this.setData({
       showSettings: true,
-      form: this.data.config
+      form: copyConfig(this.data.config)
     });
   },
 
   closeSettings() {
     this.setData({
       showSettings: false,
-      form: this.data.config
+      form: copyConfig(this.data.config)
     });
   },
 
   noop() {},
 
   saveSettings() {
-    const config = saveWorkConfig(this.data.form);
+    const api = getWorkdayApi();
+    const config = copyConfig(api.saveWorkConfig(this.data.form));
+    const stats = api.getWorkStats(config);
+
     this.setData({
       config,
-      form: config,
-      stats: getWorkStats(config),
+      form: copyConfig(config),
+      stats,
       showSettings: false
     });
 

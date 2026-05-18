@@ -7,6 +7,12 @@ const DEFAULT_WORK_CONFIG = {
 
 const WORK_CONFIG_STORAGE_KEY = "workConfig";
 
+function normalizeTime(value, fallback) {
+  const text = String(value || "").trim();
+
+  return /^\d{1,2}:\d{2}$/.test(text) ? text : fallback;
+}
+
 function normalizeWorkConfig(config = {}) {
   const monthlySalary = Number(config.monthlySalary) || DEFAULT_WORK_CONFIG.monthlySalary;
   const workDaysPerMonth = Number(config.workDaysPerMonth) || DEFAULT_WORK_CONFIG.workDaysPerMonth;
@@ -14,8 +20,8 @@ function normalizeWorkConfig(config = {}) {
   return {
     monthlySalary: Math.max(1, monthlySalary),
     workDaysPerMonth: Math.max(1, workDaysPerMonth),
-    startTime: config.startTime || DEFAULT_WORK_CONFIG.startTime,
-    endTime: config.endTime || DEFAULT_WORK_CONFIG.endTime
+    startTime: normalizeTime(config.startTime, DEFAULT_WORK_CONFIG.startTime),
+    endTime: normalizeTime(config.endTime, DEFAULT_WORK_CONFIG.endTime)
   };
 }
 

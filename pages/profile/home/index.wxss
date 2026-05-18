@@ -3,27 +3,88 @@
 }
 
 .profile-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 118rpx minmax(0, 1fr);
+  column-gap: 24rpx;
   align-items: center;
-  gap: 22rpx;
-  padding: 34rpx;
+  padding: 32rpx 30rpx;
   border-radius: 8rpx;
-  background: linear-gradient(135deg, #fff0dc 0%, #f7d4b6 54%, #dfe9bf 100%);
+  background: linear-gradient(135deg, #fff5e8 0%, #f8ddc4 48%, #edf3d0 100%);
   color: #3a2a22;
-  box-shadow: 0 22rpx 54rpx rgba(177, 112, 62, 0.16);
+  box-shadow: 0 18rpx 42rpx rgba(118, 82, 55, 0.12);
 }
 
-.avatar {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 8rpx;
-  background: rgba(255, 253, 249, 0.72);
-  border: 2rpx solid rgba(255, 255, 255, 0.72);
+.avatar-stack {
+  position: relative;
+  width: 104rpx;
+  justify-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.avatar {
+  margin: 0;
+  padding: 0;
+  flex: 0 0 104rpx;
+  width: 104rpx;
+  height: 104rpx;
+  min-width: 104rpx;
+  min-height: 104rpx;
+  box-sizing: border-box;
+  border-radius: 8rpx;
+  background: #fffdf9;
+  border: 4rpx solid rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b65f2a;
   font-weight: 800;
-  font-size: 34rpx;
+  font-size: 38rpx;
+  line-height: 104rpx;
+  overflow: hidden;
+  box-shadow: 0 10rpx 26rpx rgba(118, 82, 55, 0.14);
+}
+
+.avatar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-button::after {
+  border: 0;
+}
+
+.avatar-image {
+  flex: 0 0 96rpx;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 6rpx;
+  display: block;
+}
+
+.avatar-tip {
+  position: absolute;
+  right: -2rpx;
+  bottom: -2rpx;
+  width: 38rpx;
+  height: 38rpx;
+  border-radius: 8rpx;
+  background: #b65f2a;
+  border: 3rpx solid #fffdf9;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  font-weight: 800;
+  box-sizing: border-box;
+}
+
+.profile-info {
+  min-width: 0;
+  width: 100%;
 }
 
 .profile-head .eyebrow {
@@ -34,18 +95,52 @@
 .name-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12rpx;
+  width: 100%;
 }
 
-.name {
-  font-size: 38rpx;
+.name-editor {
+  flex: 1;
+  min-width: 0;
+  min-height: 60rpx;
+  padding: 0 6rpx 0 0;
+  border-radius: 8rpx;
+  background: transparent;
+  border-bottom: 3rpx solid rgba(182, 95, 42, 0.22);
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  box-sizing: border-box;
+}
+
+.name-edit-mark {
+  flex: 0 0 auto;
+  color: #b65f2a;
+  font-size: 23rpx;
+  font-weight: 800;
+  padding: 8rpx 0 8rpx 12rpx;
+}
+
+.name-input {
+  flex: 1;
+  width: 100%;
+  min-height: 58rpx;
+  padding: 0;
+  color: #3a2a22;
+  font-size: 36rpx;
   font-weight: 800;
   line-height: 1.25;
 }
 
+.status-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+
 .status-badge {
-  max-width: 330rpx;
+  max-width: 360rpx;
   min-height: 46rpx;
   padding: 0 14rpx;
   border-radius: 8rpx;
@@ -73,7 +168,7 @@
 
 .desc {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 10rpx;
   color: #7d6252;
   font-size: 25rpx;
   line-height: 1.45;
@@ -137,37 +232,6 @@
   color: #8a7467;
   font-size: 25rpx;
   line-height: 1.5;
-}
-
-.welfare-entry {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18rpx;
-  margin-top: 18rpx;
-  background: linear-gradient(135deg, #fff7ec 0%, #f7fbe8 100%);
-  border-color: #dfe9bf;
-}
-
-.welfare-title {
-  display: block;
-  color: #3a2a22;
-  font-size: 30rpx;
-  font-weight: 800;
-}
-
-.welfare-desc {
-  display: block;
-  margin-top: 8rpx;
-  color: #8a7467;
-  font-size: 25rpx;
-  line-height: 1.45;
-}
-
-.welfare-arrow {
-  flex: 0 0 auto;
-  color: #b9a69a;
-  font-size: 42rpx;
 }
 
 .booking {

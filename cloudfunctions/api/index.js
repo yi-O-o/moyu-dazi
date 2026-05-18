@@ -306,6 +306,7 @@ function decoratePost(post, openid) {
   const comments = (post.comments || []).map((comment) => {
     return Object.assign({}, comment, {
       avatar: comment.avatarText || String(comment.author || "评").slice(0, 1),
+      avatarUrl: comment.avatarUrl || "",
       createdAt: formatTime(comment.createdAt)
     });
   });
@@ -327,6 +328,7 @@ function decoratePost(post, openid) {
     id: post._id,
     isMine: post._openid === openid,
     avatar: post.avatarText || String(post.author || "鱼").slice(0, 1),
+    avatarUrl: post.avatarUrl || "",
     channelTitle: CHANNEL_TITLES[post.channel] || "鱼塘",
     images,
     imageTiles,
@@ -375,11 +377,13 @@ function decorateMeetup(meetup, openid) {
     commentCount: (meetup.comments || []).length,
     previewComments: (meetup.comments || []).slice(0, 2).map((comment) => {
       return Object.assign({}, comment, {
+        avatarUrl: comment.avatarUrl || "",
         createdAt: formatTime(comment.createdAt)
       });
     }),
     comments: (meetup.comments || []).map((comment) => {
       return Object.assign({}, comment, {
+        avatarUrl: comment.avatarUrl || "",
         createdAt: formatTime(comment.createdAt)
       });
     }),
@@ -470,6 +474,7 @@ async function fishCreate(openid, data) {
     _openid: openid,
     author: user.nickName || "我",
     avatarText: user.avatarText || String(user.nickName || "我").slice(0, 1),
+    avatarUrl: user.avatarUrl || "",
     channel: limitText(data.channel, 24, "cup"),
     title,
     content,
@@ -573,6 +578,7 @@ async function fishComment(openid, data) {
     _openid: openid,
     author: user.nickName || "我",
     avatarText: user.avatarText || "我",
+    avatarUrl: user.avatarUrl || "",
     content,
     reviewStatus: "pass",
     createdAt: db.serverDate()
@@ -667,6 +673,7 @@ async function meetupCreate(openid, data) {
     _openid: openid,
     author: user.nickName || "我",
     avatarText: user.avatarText || "我",
+    avatarUrl: user.avatarUrl || "",
     type: limitText(data.type, 24, "food"),
     title,
     time,
@@ -744,6 +751,8 @@ async function meetupComment(openid, data) {
     id: `${Date.now()}_${openid.slice(-6)}`,
     _openid: openid,
     author: user.nickName || "我",
+    avatarText: user.avatarText || "我",
+    avatarUrl: user.avatarUrl || "",
     text,
     reviewStatus: "pass",
     createdAt: db.serverDate()

@@ -1,6 +1,9 @@
 <view class="page user-page">
   <view class="user-hero">
-    <view class="avatar">{{avatar}}</view>
+    <view class="avatar">
+      <image class="avatar-image" wx:if="{{avatarUrl}}" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <text wx:else>{{avatar}}</text>
+    </view>
     <view>
       <text class="eyebrow">个人主页</text>
       <view class="name-row">

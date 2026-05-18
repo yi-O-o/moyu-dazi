@@ -1,5 +1,6 @@
 const { addPoints } = require("../../../utils/gamification");
 const cloudApi = require("../../../utils/cloudApi");
+const { getCloudProfilePayload } = require("../../../utils/profile");
 const {
   addComment,
   deletePost,
@@ -67,9 +68,16 @@ Page({
 
   goUserProfile(event) {
     const author = event.currentTarget.dataset.author || "我";
+    const openid = event.currentTarget.dataset.openid || "";
+    const avatarUrl = event.currentTarget.dataset.avatarUrl || "";
+    const query = [
+      `author=${encodeURIComponent(author)}`,
+      openid ? `openid=${encodeURIComponent(openid)}` : "",
+      avatarUrl ? `avatarUrl=${encodeURIComponent(avatarUrl)}` : ""
+    ].filter(Boolean).join("&");
 
     wx.navigateTo({
-      url: `/pages/profile/user/index?author=${encodeURIComponent(author)}`
+      url: `/pages/profile/user/index?${query}`
     });
   },
 
@@ -112,7 +120,11 @@ Page({
     this.setData({
       commentInput: ""
     });
-    cloudApi.addFishComment({ id: this.data.postId, content: text }).then(() => {
+    cloudApi.addFishComment({
+      id: this.data.postId,
+      content: text,
+      profile: getCloudProfilePayload()
+    }).then(() => {
       this.refreshPost();
       this.playPointFeedback(pointResult, "评论");
       wx.showToast({

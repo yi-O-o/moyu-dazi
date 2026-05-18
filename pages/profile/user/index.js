@@ -1,5 +1,6 @@
 const { deletePost, getPostsByAuthor } = require("../../../utils/fishpond");
 const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
+const cloudApi = require("../../../utils/cloudApi");
 
 const PUBLIC_SIGNS = [
   {
@@ -47,6 +48,8 @@ Page({
   data: {
     author: "打工人",
     avatar: "打",
+    avatarUrl: "",
+    openid: "",
     mystic: null,
     posts: [],
     isMine: false
@@ -54,10 +57,14 @@ Page({
 
   onLoad(options) {
     const author = decodeURIComponent(options.author || "我");
+    const openid = decodeURIComponent(options.openid || "");
+    const avatarUrl = decodeURIComponent(options.avatarUrl || "");
 
     this.setData({
       author,
       avatar: String(author || "打").slice(0, 1),
+      avatarUrl,
+      openid,
       isMine: author === "我"
     });
     this.refreshProfile(author);
@@ -71,6 +78,27 @@ Page({
     this.setData({
       mystic: getMysticForAuthor(author),
       posts: getPostsByAuthor(author)
+    });
+
+    if (!this.data.openid) return;
+
+    cloudApi.getUserProfile({ openid: this.data.openid }).then((res) => {
+      if (!res.user) return;
+
+      this.setData({
+        author: res.user.nickName || author,
+        avatar: res.user.avatarText || String(res.user.nickName || author || "打").slice(0, 1),
+        avatarUrl: res.user.avatarUrl || this.data.avatarUrl,
+        isMine: !!res.isMine
+      });
+    }).catch(() => {
+    });
+
+    cloudApi.listFishPosts({ openid: this.data.openid }).then((res) => {
+      this.setData({
+        posts: res.posts || []
+      });
+    }).catch(() => {
     });
   },
 

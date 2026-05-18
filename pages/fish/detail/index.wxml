@@ -6,12 +6,15 @@
 
   <view class="detail-card">
     <view class="post-head">
-      <view class="avatar" catchtap="goUserProfile" data-author="{{post.author}}">{{post.avatar}}</view>
+      <view class="avatar" catchtap="goUserProfile" data-author="{{post.author}}" data-openid="{{post._openid}}" data-avatar-url="{{post.avatarUrl}}">
+        <image class="avatar-image" wx:if="{{post.avatarUrl}}" src="{{post.avatarUrl}}" mode="aspectFill"></image>
+        <text wx:else>{{post.avatar}}</text>
+      </view>
       <view>
         <text class="post-author">{{post.author}}</text>
         <text class="post-meta">{{post.createdAt}} · {{post.channelTitle}} · {{post.mood}}</text>
       </view>
-      <text class="post-delete" wx:if="{{post.author === '我'}}" bindtap="deleteMyPost">删除</text>
+      <text class="post-delete" wx:if="{{post.isMine || post.author === '我'}}" bindtap="deleteMyPost">删除</text>
       <text class="post-more" bindtap="reportPost">···</text>
     </view>
 
@@ -51,7 +54,10 @@
     </view>
     <view class="comment-list" wx:if="{{post.comments.length}}">
       <view class="comment-item" wx:for="{{post.comments}}" wx:for-item="comment" wx:key="id">
-        <view class="comment-avatar" catchtap="goUserProfile" data-author="{{comment.author}}">{{comment.avatar}}</view>
+        <view class="comment-avatar" catchtap="goUserProfile" data-author="{{comment.author}}" data-openid="{{comment._openid}}" data-avatar-url="{{comment.avatarUrl}}">
+          <image class="avatar-image" wx:if="{{comment.avatarUrl}}" src="{{comment.avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else>{{comment.avatar}}</text>
+        </view>
         <view>
           <text class="comment-author" catchtap="goUserProfile" data-author="{{comment.author}}">{{comment.author}}</text>
           <text class="comment-content">{{comment.content}}</text>

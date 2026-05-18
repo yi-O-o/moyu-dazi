@@ -8,6 +8,7 @@ const {
 } = require("../../../utils/fishpond");
 const { buildGameSummary, loadGameState } = require("../../../utils/gamification");
 const { cancelMeetup, getMyMeetups } = require("../../../utils/meetups");
+const { DEFAULT_PROFILE, getAvatarText, loadUserProfile, saveUserProfile } = require("../../../utils/profile");
 
 function decorateTabs(activeTab) {
   return [
@@ -33,9 +34,30 @@ function decorateMeetupTabs(activeTab) {
   });
 }
 
+function shouldHydrateProfileFromCloud(localProfile, cloudUser) {
+  if (!cloudUser) return false;
+
+  const localIsDefault = localProfile.nickName === DEFAULT_PROFILE.nickName
+    && localProfile.avatarText === DEFAULT_PROFILE.avatarText
+    && !localProfile.avatarUrl;
+  const cloudHasCustomProfile = cloudUser.nickName && cloudUser.nickName !== DEFAULT_PROFILE.nickName
+    || cloudUser.avatarUrl;
+
+  return localIsDefault && !!cloudHasCustomProfile;
+}
+
+function getEventValue(event = {}) {
+  if (!event.detail) return undefined;
+  if (event.detail.value !== undefined) return event.detail.value;
+  if (event.detail.nickName !== undefined) return event.detail.nickName;
+  return undefined;
+}
+
 Page({
   data: {
     todayEarned: "0.00",
+    userProfile: loadUserProfile(),
+    nickNameDraft: loadUserProfile().nickName,
     game: buildGameSummary(loadGameState()),
     meetupTab: "all",
     meetupTabs: decorateMeetupTabs("all"),
@@ -55,28 +77,53 @@ Page({
   onShow() {
     const settings = loadWorkConfig();
     const stats = getWorkStats(settings);
-    this.setData({
+    const userProfile = loadUserProfile();
+    const nextData = {
       todayEarned: stats.earned,
+      userProfile,
       game: buildGameSummary(loadGameState()),
       meetupTabs: decorateMeetupTabs(this.data.meetupTab),
       myMeetups: [],
       myPosts: getMyPosts(),
       myComments: getMyComments(),
       myFavorites: getMyFavorites()
+    };
+
+    if (!this.editingNickName) {
+      nextData.nickNameDraft = userProfile.nickName;
+    }
+
+    this.setData({
+      ...nextData
     });
     this.refreshCloudProfile();
+  },
+
+  onUnload() {
+    if (this.nickNameSaveTimer) clearTimeout(this.nickNameSaveTimer);
   },
 
   refreshCloudProfile() {
     cloudApi.getPointSummary().then((res) => {
       if (!res.user) return;
+      const localProfile = loadUserProfile();
+      const userProfile = shouldHydrateProfileFromCloud(localProfile, res.user)
+        ? saveUserProfile(res.user)
+        : localProfile;
 
-      this.setData({
+      const nextData = {
+        userProfile,
         game: Object.assign({}, this.data.game, {
           points: res.user.points,
           level: res.user.level
         })
-      });
+      };
+
+      if (!this.editingNickName) {
+        nextData.nickNameDraft = userProfile.nickName;
+      }
+
+      this.setData(nextData);
     }).catch(() => {
     });
 
@@ -97,6 +144,155 @@ Page({
       });
     }).catch(() => {
     });
+  },
+
+  buildProfileWithNickName(value) {
+    const nickName = String(value || "").trim().slice(0, 24);
+    return Object.assign({}, this.data.userProfile, {
+      nickName,
+      avatarText: getAvatarText(nickName)
+    });
+  },
+
+  handleNickNameInput(event) {
+    const value = getEventValue(event);
+    if (value === undefined) return;
+
+    this.editingNickName = true;
+    const nickNameDraft = String(value || "").trim().slice(0, 24);
+    this.setData({
+      nickNameDraft
+    });
+    this.queueNickNameSave();
+  },
+
+  handleNickNameFocus() {
+    this.editingNickName = true;
+  },
+
+  handleNickNameBlur(event) {
+    const value = getEventValue(event);
+    if (value === undefined) return;
+
+    const incomingNickName = String(value || "").trim().slice(0, 24);
+    const savedNickName = this.data.userProfile.nickName;
+    const draftNickName = String(this.data.nickNameDraft || "").trim().slice(0, 24);
+
+    if (incomingNickName === savedNickName && draftNickName && draftNickName !== savedNickName) {
+      return;
+    }
+
+    this.handleNickNameInput(event);
+  },
+
+  queueNickNameSave() {
+    if (this.nickNameSaveTimer) clearTimeout(this.nickNameSaveTimer);
+
+    this.nickNameSaveTimer = setTimeout(() => {
+      const savedNickName = this.data.userProfile.nickName;
+      const draftNickName = String(this.data.nickNameDraft || "").trim().slice(0, 24);
+
+      if (!draftNickName || draftNickName === savedNickName) return;
+
+      this.saveProfile(this.buildProfileWithNickName(draftNickName), "资料已保存");
+    }, 350);
+  },
+
+  chooseAvatar(event) {
+    const avatarUrl = event.detail && event.detail.avatarUrl;
+    if (!avatarUrl) return;
+
+    this.saveProfile({ avatarUrl }, "头像已更新");
+  },
+
+  saveProfile(change = {}, toastTitle = "资料已保存") {
+    if (this.nickNameSaveTimer) {
+      clearTimeout(this.nickNameSaveTimer);
+      this.nickNameSaveTimer = null;
+    }
+
+    const current = Object.assign({}, this.data.userProfile, change || {});
+    const userProfile = saveUserProfile(current);
+
+    this.setData({
+      userProfile,
+      nickNameDraft: userProfile.nickName
+    });
+    this.editingNickName = false;
+    this.syncProfile(userProfile, toastTitle);
+  },
+
+  saveProfileFromInput(event = {}) {
+    const value = getEventValue(event);
+    const savedNickName = this.data.userProfile.nickName;
+    const draftNickName = String(this.data.nickNameDraft || "").trim().slice(0, 24);
+
+    if (value !== undefined) {
+      const incomingNickName = String(value || "").trim().slice(0, 24);
+
+      if (incomingNickName === savedNickName && draftNickName && draftNickName !== savedNickName) {
+        return;
+      }
+
+      const userProfile = this.buildProfileWithNickName(incomingNickName || draftNickName || savedNickName);
+      this.saveProfile(userProfile, "资料已保存");
+      return;
+    }
+
+    this.saveProfile(this.buildProfileWithNickName(draftNickName || savedNickName), "资料已保存");
+  },
+
+  syncProfile(profile, toastTitle) {
+    const finish = (nextProfile) => {
+      cloudApi.upsertUserProfile({ profile: nextProfile }).then((res) => {
+        const saved = saveUserProfile(Object.assign({}, res.user || {}, nextProfile));
+      this.setData({
+        userProfile: saved,
+        nickNameDraft: saved.nickName
+      });
+      this.editingNickName = false;
+        wx.showToast({
+          title: toastTitle,
+          icon: "none",
+          duration: 1000
+        });
+      }).catch((error) => {
+        cloudApi.showErrorToast(error, "资料暂时只保存在本地");
+      });
+    };
+
+    if (!profile.avatarUrl || String(profile.avatarUrl).indexOf("http://tmp") !== 0 && String(profile.avatarUrl).indexOf("wxfile://") !== 0) {
+      finish(profile);
+      return;
+    }
+
+    this.uploadAvatar(profile.avatarUrl).then((avatarUrl) => {
+      const nextProfile = saveUserProfile(Object.assign({}, profile, { avatarUrl }));
+
+      this.setData({
+        userProfile: nextProfile,
+        nickNameDraft: nextProfile.nickName
+      });
+      finish(nextProfile);
+    }).catch(() => {
+      wx.showToast({
+        title: "头像暂时只保存在本地",
+        icon: "none",
+        duration: 1200
+      });
+    });
+  },
+
+  uploadAvatar(filePath) {
+    if (!wx.cloud || !wx.cloud.uploadFile) {
+      return Promise.reject(new Error("cloud unavailable"));
+    }
+
+    const ext = String(filePath).split(".").pop() || "jpg";
+    return wx.cloud.uploadFile({
+      cloudPath: `profile-avatars/${Date.now()}.${ext}`,
+      filePath
+    }).then((res) => res.fileID);
   },
 
   switchPondTab(event) {
@@ -195,9 +391,6 @@ Page({
     });
   },
 
-  goWelfare() {
-    wx.navigateTo({
-      url: "/pages/profile/welfare/index"
-    });
+  noop() {
   }
 });

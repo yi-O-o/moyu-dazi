@@ -79,9 +79,16 @@ Page({
 
   goUserProfile(event) {
     const author = event.currentTarget.dataset.author || "我";
+    const openid = event.currentTarget.dataset.openid || "";
+    const avatarUrl = event.currentTarget.dataset.avatarUrl || "";
+    const query = [
+      `author=${encodeURIComponent(author)}`,
+      openid ? `openid=${encodeURIComponent(openid)}` : "",
+      avatarUrl ? `avatarUrl=${encodeURIComponent(avatarUrl)}` : ""
+    ].filter(Boolean).join("&");
 
     wx.navigateTo({
-      url: `/pages/profile/user/index?author=${encodeURIComponent(author)}`
+      url: `/pages/profile/user/index?${query}`
     });
   },
 
